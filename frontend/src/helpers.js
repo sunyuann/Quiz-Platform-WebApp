@@ -1,3 +1,6 @@
+import config from './config.json'
+const BACKEND_PORT = config.BACKEND_PORT;
+
 // api call function
 export async function apiCall (path, method, body) {
   const options = {
@@ -20,7 +23,7 @@ export async function apiCall (path, method, body) {
   }
 
   try {
-    const response = await fetch('http://localhost:5050/' + path, options);
+    const response = await fetch(`http://localhost:${BACKEND_PORT}/` + path, options);
     const data = await response.json();
     return data;
   } catch (error) {
