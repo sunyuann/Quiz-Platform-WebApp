@@ -1,12 +1,24 @@
 import React from 'react';
 
-function SignUp () {
+function SignUp ({ onSuccess }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
 
-  function register () {
-    console.log(email, password, name)
+  async function register () {
+    const response = await fetch('http://localhost:5005/admin/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        name,
+      })
+    });
+    const data = await response.json();
+    onSuccess(data.token);
   }
   return (
     <>
