@@ -1,27 +1,29 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useContext, Context } from '../context';
+import NavBarNotLoggedIn from '../components/NavBarNotLoggedIn';
+import { apiCall } from '../helpers';
 
-function Register ({ onSuccess }) {
+function Register () {
+  const navigate = useNavigate();
+  const { setters } = useContext(Context);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
 
   async function fetchRegister () {
-    const response = await fetch('http://localhost:5005/admin/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        name,
-      })
-    });
-    const data = await response.json();
-    onSuccess(data.token);
+    const data = await apiCall('admin/auth/register', 'POST', { email, password, name });
+    if (data.error) {
+      console.log('TODO error registering ', data);
+      return;
+    }
+    setters.setToken(data.token);
+    localStorage.setItem('token', data.token);
+    navigate('/dashboard');
   }
   return (
     <>
+      <NavBarNotLoggedIn />
         Email: <input value={email} onChange={(e) => setEmail(e.target.value)}/><br />
         Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/><br />
         Name: <input value={name} onChange={(e) => setName(e.target.value)}/><br />

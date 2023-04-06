@@ -1,5 +1,7 @@
 import React from 'react';
 import Button from '@mui/material/Button';
+import NavBar from '../components/NavBar';
+import { apiCall } from '../helpers';
 
 function Dashboard ({ token }) {
   const [newGameShow, setNewGameShow] = React.useState(false);
@@ -7,14 +9,11 @@ function Dashboard ({ token }) {
   const [newQuizName, setNewQuizName] = React.useState('');
 
   async function fetchAllQuizzes () {
-    const response = await fetch('http://localhost:5005/admin/quiz', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      }
-    })
-    const data = await response.json();
+    const data = await apiCall('admin/quiz', 'GET')
+    if (data.error) {
+      console.log('TODO error getting quizes ', data);
+      return;
+    }
     setQuizzes(data.quizzes);
   }
 
@@ -23,21 +22,18 @@ function Dashboard ({ token }) {
   }, [newGameShow]);
 
   async function createNewGame () {
-    await fetch('http://localhost:5005/admin/quiz/new', {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: newQuizName,
-      })
-    });
+    const response = await apiCall('admin/quiz/new', 'POST', { name: newQuizName })
+    if (response.error) {
+      console.log('TODO error creating new quiz ', response);
+      return;
+    }
     await fetchAllQuizzes();
   }
 
   // TODO: break into more compoennts
-  return <>
+  return (
+    <>
+      <NavBar />
       Dashboard! list games...<br />
       {quizzes.map(quiz => (
         <>
@@ -55,7 +51,8 @@ function Dashboard ({ token }) {
           <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
         </>
       )}
-  </>;
+    </>
+  )
 }
 
 export default Dashboard;
