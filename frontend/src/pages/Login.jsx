@@ -1,12 +1,11 @@
 import React from 'react';
 
-function SignUp ({ onSuccess }) {
+function Login ({ onSuccess }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [name, setName] = React.useState('');
 
-  async function register () {
-    const response = await fetch('http://localhost:5005/admin/auth/register', {
+  async function fetchLogin () {
+    const response = await fetch('http://localhost:5005/admin/auth/login', {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
@@ -14,7 +13,6 @@ function SignUp ({ onSuccess }) {
       body: JSON.stringify({
         email,
         password,
-        name,
       })
     });
     const data = await response.json();
@@ -24,10 +22,9 @@ function SignUp ({ onSuccess }) {
     <>
         Email: <input value={email} onChange={(e) => setEmail(e.target.value)}/><br />
         Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/><br />
-        Name: <input value={name} onChange={(e) => setName(e.target.value)}/><br />
-        <button onClick={register}>Sign Up</button>
+        <button onClick={fetchLogin}>Sign In</button>
     </>
   )
 }
 
-export default SignUp;
+export default Login;

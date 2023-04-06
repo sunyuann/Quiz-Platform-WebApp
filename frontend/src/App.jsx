@@ -1,7 +1,7 @@
 import React from 'react';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import Dashboard from './components/Dashboard';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
 
 function App () {
   const [page, setPage] = React.useState('signup');
@@ -45,9 +45,9 @@ function App () {
         {token !== null
           ? <Dashboard token={token}/>
           : page === 'signup'
-            ? <SignUp onSuccess={manageTokenSet}/>
+            ? <Register onSuccess={manageTokenSet}/>
             : page === 'signin'
-              ? <SignIn onSuccess={manageTokenSet}/>
+              ? <Login onSuccess={manageTokenSet}/>
               : <>BLANK</>
         }
       </main>
