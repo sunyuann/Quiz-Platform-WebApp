@@ -13,11 +13,19 @@ import NavBar from './components/NavBar';
 
 function App () {
   const [token, setToken] = React.useState(initialValue.token);
+  const setManagedToken = (token) => {
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+    setToken(token);
+  }
   const getters = {
     token,
   };
   const setters = {
-    setToken,
+    setManagedToken,
   }
 
   return (

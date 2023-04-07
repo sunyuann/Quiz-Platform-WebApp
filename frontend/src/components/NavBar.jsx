@@ -15,10 +15,7 @@ function NavBar () {
   // On page refresh, check for localstorage.token
   React.useEffect(() => {
     if (localStorage.getItem('token')) {
-      setters.setToken(localStorage.getItem('token'));
-      if (location.pathname === '/login' || location.pathname === '/register') {
-        navigate('/dashboard');
-      }
+      setters.setManagedToken(localStorage.getItem('token'));
     } else {
       // No token, Go Directly to Login, DO NOT PASS GO, DO NOT COLLECT $200
       if (location.pathname !== '/' && location.pathname !== '/login') {
@@ -27,14 +24,21 @@ function NavBar () {
     }
   }, []);
 
+  // When token changes, go to Dashboard or Login page
+  React.useEffect(() => {
+    if (getters.token) {
+      navigate('/dashboard');
+    } else {
+      navigate('/login');
+    }
+  }, [getters.token])
+
   async function logout () {
     const response = await apiCall('admin/auth/logout', 'POST');
     if (response.error) {
       console.log('TODO error logging out ', response);
     }
-    setters.setToken(null);
-    localStorage.removeItem('token');
-    navigate('/login');
+    setters.setManagedToken(null);
   }
 
   return (
