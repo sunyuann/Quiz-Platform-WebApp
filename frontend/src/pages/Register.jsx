@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useContext, Context } from '../context';
-import NavBarNotLoggedIn from '../components/NavBarNotLoggedIn';
 import { apiCall } from '../helpers';
 
 function Register () {
@@ -23,7 +22,6 @@ function Register () {
   }
   return (
     <>
-      <NavBarNotLoggedIn />
         Email: <input value={email} onChange={(e) => setEmail(e.target.value)}/><br />
         Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/><br />
         Name: <input value={name} onChange={(e) => setName(e.target.value)}/><br />

@@ -1,6 +1,5 @@
 import React from 'react';
 import Button from '@mui/material/Button';
-import NavBar from '../components/NavBar';
 import { apiCall } from '../helpers';
 
 function Dashboard ({ token }) {
@@ -33,7 +32,6 @@ function Dashboard ({ token }) {
   // TODO: break into more compoennts
   return (
     <>
-      <NavBar />
       Dashboard! list games...<br />
       {quizzes.map(quiz => (
         <>
