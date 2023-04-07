@@ -1,56 +1,39 @@
 import React from 'react';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import Dashboard from './components/Dashboard';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from 'react-router-dom';
+import { Context, initialValue } from './context';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Page404 from './pages/Page404'
+import Register from './pages/Register';
+import NavBar from './components/NavBar';
 
 function App () {
-  const [page, setPage] = React.useState('signup');
-  const [token, setToken] = React.useState(null);
-
-  function manageTokenSet (token) {
-    setToken(token);
-    localStorage.setItem('token', token);
+  const [token, setToken] = React.useState(initialValue.token);
+  const getters = {
+    token,
+  };
+  const setters = {
+    setToken,
   }
-
-  // todo: abstract into logout function and use logout fetch method
-  function logout () {
-    setToken(null);
-    localStorage.removeItem('token');
-  }
-
-  React.useEffect(() => {
-    if (localStorage.getItem('token')) {
-      setToken(localStorage.getItem('token'));
-    }
-  }, []);
 
   return (
     <>
-      <header>
-        <nav>
-          {token
-            ? <>
-                <a href="#" onClick={logout}>Logout</a>
-              </>
-            : <>
-                <a href="#" onClick={() => setPage('signup')}>Sign Up</a>
-                &nbsp;|&nbsp;
-                <a href="#" onClick={() => setPage('signin')}>Sign In</a>
-              </>
-          }
-        </nav>
-        <hr />
-      </header>
-      <main>
-        {token !== null
-          ? <Dashboard token={token}/>
-          : page === 'signup'
-            ? <SignUp onSuccess={manageTokenSet}/>
-            : page === 'signin'
-              ? <SignIn onSuccess={manageTokenSet}/>
-              : <>BLANK</>
-        }
-      </main>
+      <Context.Provider value={{ getters, setters, }}>
+        <BrowserRouter>
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Page404 />} />
+          </Routes>
+        </BrowserRouter>
+      </Context.Provider>
     </>
   );
 }
