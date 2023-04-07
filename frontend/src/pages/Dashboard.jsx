@@ -1,29 +1,54 @@
 import React from 'react';
-import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../helpers';
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import GameCard from '../components/GameCard';
 
-function Dashboard ({ token }) {
+function Dashboard () {
   const [newGameShow, setNewGameShow] = React.useState(false);
-  const [quizzes, setQuizzes] = React.useState([]);
+  const [newQuizError, setNewQuizError] = React.useState('');
   const [newQuizName, setNewQuizName] = React.useState('');
+  const [quizError, setQuizError] = React.useState('');
+  const [quizzes, setQuizzes] = React.useState([]);
+  const navigate = useNavigate();
 
+  // Fetch quizzes
   async function fetchAllQuizzes () {
     const data = await apiCall('admin/quiz', 'GET')
     if (data.error) {
-      console.log('TODO error getting quizes ', data);
+      setQuizError(data.error);
       return;
     }
     setQuizzes(data.quizzes);
   }
 
+  // Fetch quizzes on first render
   React.useEffect(async () => {
     await fetchAllQuizzes();
-  }, [newGameShow]);
+  }, []);
 
+  // Handle create new game button
   async function createNewGame () {
     const response = await apiCall('admin/quiz/new', 'POST', { name: newQuizName })
     if (response.error) {
-      console.log('TODO error creating new quiz ', response);
+      setNewQuizError(response.error);
+      return;
+    }
+    await fetchAllQuizzes();
+  }
+
+  // Handle Quiz Edit button
+  const handleQuizEdit = (id) => {
+    navigate('/quiz/edit/' + id);
+  }
+
+  // Handle Quiz Delete button
+  const handleQuizDelete = async (id) => {
+    const response = await apiCall('admin/quiz/' + id, 'DELETE');
+    if (response.error) {
+      // This should not be possible
+      // console.log(`Quiz delete error, id ${id}, ${response.error}`)
       return;
     }
     await fetchAllQuizzes();
@@ -32,23 +57,39 @@ function Dashboard ({ token }) {
   // TODO: break into more compoennts
   return (
     <>
-      Dashboard! list games...<br />
-      {quizzes.map(quiz => (
-        <>
-          <b>{quiz.name}</b><br />
-        </>
-      ))}
-      <br /><hr /><br />
-      <button onClick={() => setNewGameShow(!newGameShow)}>
-        {newGameShow ? 'Hide' : 'Show'} Create New Game</button>
-      {newGameShow && (
-        <>
-          <br />
-          Form here for new game!<br />
-          Name: <input value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
-          <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
-        </>
-      )}
+      <div>Dashboard!</div>
+      <div>
+        <button onClick={() => setNewGameShow(!newGameShow)}>
+          {newGameShow ? 'Hide' : 'Show'} Create New Game
+        </button>
+        {newGameShow && (
+          <>
+            <br />
+            Form here for new game!<br />
+            Name: <input value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
+            <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
+            { newQuizError && (
+              <Alert severity="error" onClose={() => setNewQuizError('')}>
+                {newQuizError}
+              </Alert>
+            )}
+          </>
+        )}
+      </div>
+      <div>
+        List of games:<br />
+        {quizzes.map(quiz => (
+          <div key={quiz.id}>
+            <GameCard quiz={quiz} handleEdit={handleQuizEdit} handleDelete={handleQuizDelete} />
+          </div>
+        ))}
+        { quizError && (
+          <Alert severity="error" onClose={() => setQuizError('')}>
+            {quizError}
+          </Alert>
+        )}
+      </div>
+      <hr />
     </>
   )
 }
