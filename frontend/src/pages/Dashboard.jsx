@@ -20,6 +20,15 @@ function Dashboard () {
       setQuizError(data.error);
       return;
     }
+    // Get quiz questions as well
+    for (const quiz of data.quizzes) {
+      const questions = await apiCall('admin/quiz/' + quiz.id, 'GET');
+      if (data.error) {
+        setQuizError(`Error getting questions of Quiz ID ${quiz.id}, ${data.error}`);
+        return;
+      }
+      quiz.questions = questions.questions;
+    }
     setQuizzes(data.quizzes);
   }
 
