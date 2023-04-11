@@ -83,7 +83,25 @@ function QuizEdit () {
 
   // Handle add question button
   const handleAddQuestion = () => {
-    const questions = [...quiz.questions, {}];
+    // default question params
+    const newQuestion = {
+      questionType: 'singleChoice',
+      timeLimit: 20,
+      points: 10,
+      mediaAttachment: 'none',
+      question: 'Sample question: What color is an apple?',
+      answers: [
+        {
+          content: 'blue',
+          isCorrect: 'False',
+        },
+        {
+          content: 'red',
+          isCorrect: 'True',
+        },
+      ]
+    };
+    const questions = [...quiz.questions, JSON.stringify(newQuestion)];
     updateQuestions(questions);
   }
 
