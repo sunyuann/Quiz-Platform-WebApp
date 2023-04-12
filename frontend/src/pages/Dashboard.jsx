@@ -47,11 +47,6 @@ function Dashboard () {
     await fetchAllQuizzes();
   }
 
-  // Handle Quiz Edit button
-  const handleQuizEdit = (id) => {
-    navigate('/quiz/edit/' + id);
-  }
-
   // Handle Quiz Delete button
   const handleQuizDelete = async (id) => {
     const response = await apiCall('admin/quiz/' + id, 'DELETE');
@@ -61,6 +56,11 @@ function Dashboard () {
       return;
     }
     await fetchAllQuizzes();
+  }
+
+  // Handle Quiz Edit button
+  const handleQuizEdit = async (id) => {
+    navigate('/quiz/edit/' + id);
   }
 
   // TODO: break into more compoennts

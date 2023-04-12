@@ -11,6 +11,7 @@ import Page404 from './pages/Page404'
 import Register from './pages/Register';
 import NavBar from './components/NavBar';
 import QuizEdit from './pages/QuizEdit';
+import QuestionEdit from './pages/QuestionEdit';
 
 function App () {
   const [token, setToken] = React.useState(initialValue.token);
@@ -39,6 +40,7 @@ function App () {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/quiz/edit/:id" element={<QuizEdit />} />
+            <Route path="/quiz/edit/:id/:questionId" element={<QuestionEdit />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<Page404 />} />
           </Routes>
