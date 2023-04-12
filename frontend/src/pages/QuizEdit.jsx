@@ -83,23 +83,24 @@ function QuizEdit () {
 
   // Handle add question button
   const handleAddQuestion = () => {
-    // default question params
+    // default question params initialised
     const newQuestion = {
       questionType: 'singleChoice',
       timeLimit: 20,
       points: 10,
       mediaAttachment: 'none',
+      mediaAttachmentType: 'none',
       question: 'Sample question: What color is an apple?',
       answers: [
         {
-          content: 'blue',
-          isCorrect: 'False',
+          content: 'Blue',
+          isCorrect: false,
         },
         {
-          content: 'red',
-          isCorrect: 'True',
+          content: 'Red',
+          isCorrect: true,
         },
-      ]
+      ],
     };
     const questions = [...quiz.questions, JSON.stringify(newQuestion)];
     updateQuestions(questions);
@@ -107,7 +108,7 @@ function QuizEdit () {
 
   // Handle Quiz Edit button
   const handleQuestionEdit = (id) => {
-    navigate(`/quiz/edit/${params.id}/${id}`);
+    navigate(`/quiz/edit/${params.id}/${id + 1}`);
   }
 
   // Handle Quiz Delete button
@@ -116,7 +117,6 @@ function QuizEdit () {
     questions.splice(id, 1);
     updateQuestions(questions);
   }
-
   return (
     <>
       <div>
@@ -152,7 +152,7 @@ function QuizEdit () {
           <button onClick={handleAddQuestion}>Add new question</button>
           <div>
           {quiz.questions.map((question, index) => (
-            <div key={index}>
+            <div key={index + 1}>
               <QuestionCard index={index} handleEdit={handleQuestionEdit} handleDelete={handleQuestionDelete} />
             </div>
           ))}
