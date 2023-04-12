@@ -59,7 +59,7 @@ function Dashboard () {
   }
 
   // Handle Quiz Edit button
-  const handleQuizEdit = async (id) => {
+  const handleQuizEdit = (id) => {
     navigate('/quiz/edit/' + id);
   }
 
