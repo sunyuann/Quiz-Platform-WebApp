@@ -38,7 +38,7 @@ function QuizEdit () {
 
   // Handle update name button
   const handleUpdateName = async () => {
-    const response = apiCall('admin/quiz/' + params.id, 'PUT', { name })
+    const response = await apiCall('admin/quiz/' + params.id, 'PUT', { name })
     if (response.error) {
       setNameAlert({ severity: 'error', text: response.error });
     } else {
@@ -58,7 +58,7 @@ function QuizEdit () {
 
   // Handle update thumbnail button
   const handleUpdateThumb = async () => {
-    const response = apiCall('admin/quiz/' + params.id, 'PUT', { thumbnail: thumb })
+    const response = await apiCall('admin/quiz/' + params.id, 'PUT', { thumbnail: thumb })
     if (response.error) {
       setThumbAlert({ severity: 'error', text: response.error });
     } else {
@@ -112,7 +112,7 @@ function QuizEdit () {
   }
 
   // Handle Quiz Delete button
-  const handleQuestionDelete = async (id) => {
+  const handleQuestionDelete = (id) => {
     const questions = [...quiz.questions];
     questions.splice(id, 1);
     updateQuestions(questions);
