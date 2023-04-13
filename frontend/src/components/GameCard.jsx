@@ -6,9 +6,14 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
 function GameCard ({ quiz, handleEdit, handleDelete }) {
+  let quizTime = 0;
+  for (const question of quiz.questions) {
+    const questionInfo = JSON.parse(question);
+    quizTime += Number(questionInfo.timeLimit);
+  }
   return (
     <>
-      <Card sx={{ maxWidth: 500 }}>
+      <Card sx={{ maxWidth: '500px', margin: '5px 5px 5px 0px' }}>
         <CardMedia
           component="div"
           sx={{
@@ -26,10 +31,15 @@ function GameCard ({ quiz, handleEdit, handleDelete }) {
           title= { 'thumbnail of game ' + quiz.name }
         />
         <CardContent>
-          <b>{quiz.name}</b><br />
-          TODO num of Questions
-          <br />
-          TODO total time to complete Quiz
+          <div>
+            <b>{quiz.name}</b>
+          </div>
+          <div>
+            Number of questions: {quiz.questions.length}
+          </div>
+          <div>
+            Total time to complete game: {quizTime}
+          </div>
         </CardContent>
         <CardActions>
           <Button size="small" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
