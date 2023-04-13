@@ -39,7 +39,7 @@ function QuestionEdit () {
   React.useEffect(async () => {
     const data = await apiCall('admin/quiz/' + params.id);
     if (data.error) {
-      setQuestionEditError(data.error);
+      setQuestionEditError({ severity: 'error', text: data.error });
       return;
     }
     const questionInfo = JSON.parse(data.questions[params.questionId - 1]);
@@ -81,7 +81,7 @@ function QuestionEdit () {
     } else {
       setMediaAttachmentDisplay(<>Error, this should not happen.</>);
     }
-  }, [mediaAttachment]);
+  }, [mediaAttachment, mediaAttachmentType]);
 
   // Handle back button
   const handleBack = () => {
@@ -90,6 +90,25 @@ function QuestionEdit () {
 
   // Handle question type radio state
   const handleQuestionTypeState = (event) => {
+    // If changing multi -> single, ensure only 1 correct is ticked
+    let nonCorrect = true;
+    let changed = false;
+    if (event.target.value === 'singleChoice') {
+      const tempAnswers = [...answers];
+      for (const answer of tempAnswers) {
+        if (answer.isCorrect) {
+          if (nonCorrect) {
+            nonCorrect = false;
+          } else {
+            changed = true;
+            answer.isCorrect = false;
+          }
+        }
+      }
+      if (changed) {
+        setAnswers(tempAnswers);
+      }
+    }
     setQuestionType(event.target.value);
   };
 
@@ -152,7 +171,7 @@ function QuestionEdit () {
   // insert new answer into answers
   const insertAnswer = () => {
     if (answers.length >= 6) {
-      setQuestionEditError('There cannot be more than 6 answers.');
+      setQuestionEditError({ severity: 'error', text: 'There cannot be more than 6 answers.' });
       return;
     }
     setQuestionEditError('');
@@ -164,6 +183,11 @@ function QuestionEdit () {
   const handleAnswerIsCorrect = (event, index) => {
     setQuestionEditError('');
     const tempAnswers = [...answers];
+    if (questionType === 'singleChoice') {
+      for (const answer of tempAnswers) {
+        answer.isCorrect = false;
+      }
+    }
     tempAnswers[index].isCorrect = event.target.checked;
     setAnswers(tempAnswers);
   }
@@ -179,7 +203,7 @@ function QuestionEdit () {
   // Deletes answer
   const deleteAnswer = (index) => {
     if (answers.length <= 2) {
-      setQuestionEditError('There must be at least 2 or more answers.');
+      setQuestionEditError({ severity: 'error', text: 'There must be at least 2 or more answers.' });
       return;
     }
     setQuestionEditError('');
@@ -202,13 +226,14 @@ function QuestionEdit () {
     const tempQuestions = [...quiz.questions];
     tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
     updateQuestions(tempQuestions);
+    setQuestionEditError({ severity: 'success', text: 'Changes saved' })
   }
 
   // Only set new state if update to server is good
   const updateQuestions = async (questions) => {
     const response = await apiCall('admin/quiz/' + params.id, 'PUT', { questions });
     if (response.error) {
-      setQuestionEditError(response.error);
+      setQuestionEditError({ severity: 'error', text: response.error });
       return;
     }
     setQuiz((prevState) => {
@@ -338,7 +363,7 @@ function QuestionEdit () {
                 startAdornment={
                   <InputAdornment position="start">
                     <Checkbox
-                      defaultChecked={answer.isCorrect}
+                      checked={answer.isCorrect}
                       onChange={e => handleAnswerIsCorrect(e, index)}
                       inputProps={{ 'aria-label': 'controlled' }}
                     />
@@ -362,8 +387,8 @@ function QuestionEdit () {
       <Button variant="contained" onClick={insertAnswer}>Add new answer</Button>
       <FormHelperText>Use checkbox to indicate one (or more) correct answers. Select from a range of 2 to 6 answer choices.</FormHelperText>
       { questionEditError && (
-        <Alert severity="error" onClose={() => setQuestionEditError('')}>
-          {questionEditError}
+        <Alert severity={questionEditError.severity} onClose={() => setQuestionEditError('')}>
+          {questionEditError.text}
         </Alert>
       )}
 
