@@ -20,6 +20,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 function QuestionEdit () {
   const navigate = useNavigate();
   const params = useParams();
+  const [quiz, setQuiz] = React.useState(null);
+  const [quizName, setQuizName] = React.useState('');
   const [questionEditError, setQuestionEditError] = React.useState('');
   const [questionType, setQuestionType] = React.useState('');
   const [timeLimit, setTimeLimit] = React.useState(null);
@@ -27,10 +29,13 @@ function QuestionEdit () {
   const [mediaAttachmentOrig, setOrigMediaAttachmentOrig] = React.useState('');
   const [mediaAttachment, setMediaAttachment] = React.useState('');
   const [mediaAttachmentDisplay, setMediaAttachmentDisplay] = React.useState(null);
+  const [mediaAttachmentType, setMediaAttachmentType] = React.useState('');
+  const [mediaAttachmentUploadURL, setMediaAttachmentUploadURL] = React.useState('');
+  const [mediaAttachmentError, setMediaAttachmentError] = React.useState('');
   const [question, setQuestion] = React.useState('');
   const [answers, setAnswers] = React.useState([]);
 
-  // Fetch quiz to edit on first render
+  // Fetch question to edit on first render
   React.useEffect(async () => {
     const data = await apiCall('admin/quiz/' + params.id);
     if (data.error) {
@@ -38,11 +43,14 @@ function QuestionEdit () {
       return;
     }
     const questionInfo = JSON.parse(data.questions[params.questionId]);
+    setQuiz(data);
+    setQuizName(data.name);
     setQuestionType(questionInfo.questionType);
     setTimeLimit(questionInfo.timeLimit);
     setPoints(questionInfo.points);
     setOrigMediaAttachmentOrig(questionInfo.mediaAttachment);
     setMediaAttachment(questionInfo.mediaAttachment);
+    setMediaAttachmentType(questionInfo.mediaAttachmentType);
     setQuestion(questionInfo.question);
     setAnswers(questionInfo.answers);
   }, []);
@@ -53,8 +61,25 @@ function QuestionEdit () {
       setMediaAttachmentDisplay(<>There is currently no image or video attached to this question.</>);
     } else if (mediaAttachment === 'no image inserted') {
       setMediaAttachment(mediaAttachmentOrig);
+    } else if (mediaAttachmentType === 'image') {
+      setMediaAttachmentDisplay(
+        <img src={mediaAttachment}
+          alt={'Media attachment of Quiz ' + params.id + ' Question ' + params.questionId}
+        />
+      );
+    } else if (mediaAttachmentType === 'url') {
+      setMediaAttachmentDisplay(
+        <iframe src={mediaAttachment}
+          type="text/html"
+          width="711"
+          height="400"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media;"
+          allowFullScreen
+          title="Youtube video media.">
+        </iframe>
+      )
     } else {
-      setMediaAttachmentDisplay(<img src={mediaAttachment} alt={'Media attachment of Quiz ' + params.id + ' Question ' + params.questionId}/>);
+      setMediaAttachmentDisplay(<>Error, this should not happen.</>);
     }
   }, [mediaAttachment]);
 
@@ -78,13 +103,46 @@ function QuestionEdit () {
     setPoints(event.target.value);
   }
 
-  // Handle media attachment state
-  const handleMediaAttachmentState = async (event) => {
+  // Handle media attachment state for images
+  const handleMediaAttachmentStateImage = async (event) => {
     if (event.target.files.length > 0) {
+      setMediaAttachmentType('image');
       const image = await fileToDataUrl(event.target.files[0]);
       setMediaAttachment(image);
     } else {
+      setMediaAttachmentType('none');
       setMediaAttachment('no image inserted');
+    }
+  }
+
+  // Handle media attachment upload url state
+  const handleMediaAttachmentUploadURLState = (event) => {
+    setMediaAttachmentUploadURL(event.target.value);
+    console.log('url:', mediaAttachmentUploadURL);
+    console.log(mediaAttachmentType);
+  }
+
+  // Removes media attachment upload url state to default
+  const deleteMediaAttachmentState = async () => {
+    setMediaAttachmentType('none');
+    setMediaAttachment('no image inserted');
+  }
+
+  // on upload, grab url input from text field and insert video
+  const uploadMediaAttachmentStateURL = async () => {
+    if (mediaAttachmentUploadURL !== '' || mediaAttachmentUploadURL === null) {
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+      const match = mediaAttachmentUploadURL.match(regExp);
+      if (match && match[2].length === 11) {
+        // $('#ytplayerSide').attr('src', 'https://www.youtube.com/embed/' + match[2] + '?autoplay=0');
+        setMediaAttachmentType('url');
+        setMediaAttachment('https://www.youtube.com/embed/' + match[2] + '?autoplay=0');
+        setMediaAttachmentError('');
+      } else {
+        setMediaAttachmentError('Invalid URL, please try again.');
+      }
+    } else {
+      setMediaAttachmentError('No URL inserted, please insert URL.');
     }
   }
 
@@ -99,12 +157,14 @@ function QuestionEdit () {
       setQuestionEditError('There cannot be more than 6 answers.');
       return;
     }
+    setQuestionEditError('');
     const newAnswer = { content: '', isCorrect: false };
     setAnswers([...answers, newAnswer]);
   }
 
   // Handle answers isCorrect state
   const handleAnswerIsCorrect = (event, index) => {
+    setQuestionEditError('');
     const tempAnswers = answers;
     tempAnswers[index].isCorrect = event.target.checked;
     setAnswers(tempAnswers);
@@ -112,6 +172,7 @@ function QuestionEdit () {
 
   // Handle answer content state
   const handleAnswerContent = (event, index) => {
+    setQuestionEditError('');
     const tempAnswers = answers;
     tempAnswers[index].content = event.target.value;
     setAnswers(tempAnswers);
@@ -123,20 +184,56 @@ function QuestionEdit () {
       setQuestionEditError('There must be at least 2 or more answers.');
       return;
     }
+    setQuestionEditError('');
     const tempAnswers = [...answers];
     tempAnswers.splice(index, 1);
     setAnswers(tempAnswers);
     console.log('answers:', answers);
   }
 
+  // save question data on submit
+  const handleSubmit = () => {
+    const updatedQuestion = {
+      questionType,
+      timeLimit,
+      points,
+      mediaAttachment,
+      mediaAttachmentType,
+      question,
+      answers,
+    };
+    const tempQuestions = quiz.questions;
+    tempQuestions[params.questionId] = JSON.stringify(updatedQuestion);
+    console.log('testt', tempQuestions[params.questionId]);
+    updateQuestions(tempQuestions);
+  }
+
+  // Only set new state if update to server is good
+  const updateQuestions = async (questions) => {
+    const response = await apiCall('admin/quiz/' + params.id, 'PUT', { questions });
+    if (response.error) {
+      setQuestionEditError(response.error);
+      return;
+    }
+    setQuiz((prevState) => {
+      return {
+        ...prevState,
+        questions
+      }
+    })
+  }
+
   return (
     <>
       <button onClick={handleBack}>Back</button>
+      <h1>Quiz: {quizName}</h1>
+      <h2>Question {params.questionId}</h2>
       {/* TODO: next question and previous question edit button? */}
       <div>
         <FormControl>
         <FormLabel id="demo-controlled-radio-buttons-group">Question Type</FormLabel>
         <RadioGroup
+          row
           aria-labelledby="demo-controlled-radio-buttons-group"
           name="controlled-radio-buttons-group"
           value={questionType}
@@ -178,21 +275,56 @@ function QuestionEdit () {
           />
         </div>
       </Box>
-      <div style={{ display: 'flex' }}>
-        {mediaAttachmentDisplay}
-        <input
-              type="file"
-              accept="image/*"
-              placeholder="Upload image"
-              onChange={handleMediaAttachmentState}
-        />
-        {/* TODO: youtube URL input in media attachment, this is not working */}
+      {mediaAttachmentDisplay}
+      <div style={{ marginBottom: '10px', marginTop: '10px' }}>
+        <Button
+          variant="contained"
+          component="label"
+        >
+          Upload Image
+          <input
+            hidden
+            accept="image/*"
+            multiple type="file"
+            placeholder='Upload image'
+            onChange={handleMediaAttachmentStateImage}
+          />
+        </Button>
+      </div>
+      <div>
         <TextField
           id='outlined-basic'
-          label='Enter youtube URL (NOT WORKING TODO)'
-          variant='outlined'
+          label='Enter youtube URL here'
+          InputLabelProps={{
+            shrink: true,
+          }}
+          value={mediaAttachmentUploadURL}
+          onChange={handleMediaAttachmentUploadURLState}
         />
+        <Button
+          variant="contained"
+          size="large"
+          style={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
+          onClick={uploadMediaAttachmentStateURL}
+        >
+          Upload URL
+        </Button>
       </div>
+      <Button
+        variant="contained"
+        size="large"
+        style={{ marginTop: '5px' }}
+        onClick={deleteMediaAttachmentState}
+      >
+        Remove Image or Video
+      </Button>
+
+      { mediaAttachmentError && (
+        <Alert severity="error" onClose={() => setMediaAttachmentError('')}>
+          {mediaAttachmentError}
+        </Alert>
+      )}
+      <br /><br />
       <TextField fullWidth sx={{ m: 0.2 }}
         id="outlined-number"
         label="Question"
@@ -204,7 +336,7 @@ function QuestionEdit () {
         onChange={handleQuestionState}
       />
 
-      <Box sx={{ '& > :not(style)': { m: 1 } }}>
+      {<Box sx={{ '& > :not(style)': { m: 1 } }}>
           <FormLabel component="legend">Answers</FormLabel>
           {answers.map((answer, index) => (
             <div key={index}>
@@ -235,7 +367,7 @@ function QuestionEdit () {
               />
             </div>
           ))}
-      </Box>
+      </Box>}
       <Button variant="contained" onClick={insertAnswer}>Add new question</Button>
       <FormHelperText>Use checkbox to indicate one (or more) correct answers. Select from a range of 2 to 6 answer choices.</FormHelperText>
       { questionEditError && (
@@ -243,6 +375,8 @@ function QuestionEdit () {
           {questionEditError}
         </Alert>
       )}
+
+    <Button variant="contained" onClick={handleSubmit}>Save changes</Button>
     </>
   )
 }
