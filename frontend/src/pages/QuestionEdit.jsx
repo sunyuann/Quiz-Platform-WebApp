@@ -26,7 +26,6 @@ function QuestionEdit () {
   const [questionType, setQuestionType] = React.useState('');
   const [timeLimit, setTimeLimit] = React.useState('');
   const [points, setPoints] = React.useState('');
-  const [mediaAttachmentOrig, setOrigMediaAttachmentOrig] = React.useState('');
   const [mediaAttachment, setMediaAttachment] = React.useState('');
   const [mediaAttachmentDisplay, setMediaAttachmentDisplay] = React.useState(null);
   const [mediaAttachmentType, setMediaAttachmentType] = React.useState('');
@@ -48,19 +47,16 @@ function QuestionEdit () {
     setQuestionType(questionInfo.questionType);
     setTimeLimit(questionInfo.timeLimit);
     setPoints(questionInfo.points);
-    setOrigMediaAttachmentOrig(questionInfo.mediaAttachment);
-    setMediaAttachment(questionInfo.mediaAttachment);
     setMediaAttachmentType(questionInfo.mediaAttachmentType);
+    setMediaAttachment(questionInfo.mediaAttachment);
     setQuestion(questionInfo.question);
     setAnswers(questionInfo.answers);
   }, []);
 
   // render image on page load and on file input
-  React.useEffect(async () => {
+  React.useEffect(() => {
     if (mediaAttachment === 'none') {
       setMediaAttachmentDisplay(<>There is currently no image or video attached to this question.</>);
-    } else if (mediaAttachment === 'no image inserted') {
-      setMediaAttachment(mediaAttachmentOrig);
     } else if (mediaAttachmentType === 'image') {
       setMediaAttachmentDisplay(
         <img src={mediaAttachment}
@@ -81,7 +77,7 @@ function QuestionEdit () {
     } else {
       setMediaAttachmentDisplay(<>Error, this should not happen.</>);
     }
-  }, [mediaAttachment, mediaAttachmentType]);
+  }, [mediaAttachment]);
 
   // Handle back button
   const handleBack = () => {
@@ -130,8 +126,11 @@ function QuestionEdit () {
       setMediaAttachment(image);
     } else {
       setMediaAttachmentType('none');
-      setMediaAttachment('no image inserted');
+      setMediaAttachment('none');
     }
+    setMediaAttachmentError('');
+    // Some browsers don't trigger onChange when selecting same file again
+    event.target.value = null;
   }
 
   // Handle media attachment upload url state
@@ -140,13 +139,13 @@ function QuestionEdit () {
   }
 
   // Removes media attachment upload url state to default
-  const deleteMediaAttachmentState = async () => {
+  const deleteMediaAttachmentState = () => {
     setMediaAttachmentType('none');
-    setMediaAttachment('no image inserted');
+    setMediaAttachment('none');
   }
 
   // on upload, grab url input from text field and insert video
-  const uploadMediaAttachmentStateURL = async () => {
+  const uploadMediaAttachmentStateURL = () => {
     if (mediaAttachmentUploadURL !== '' || mediaAttachmentUploadURL === null) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       const match = mediaAttachmentUploadURL.match(regExp);
