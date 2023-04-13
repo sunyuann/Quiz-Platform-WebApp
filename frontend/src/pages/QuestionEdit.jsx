@@ -163,7 +163,7 @@ function QuestionEdit () {
   // Handle answers isCorrect state
   const handleAnswerIsCorrect = (event, index) => {
     setQuestionEditError('');
-    const tempAnswers = answers;
+    const tempAnswers = [...answers];
     tempAnswers[index].isCorrect = event.target.checked;
     setAnswers(tempAnswers);
   }
@@ -171,13 +171,13 @@ function QuestionEdit () {
   // Handle answer content state
   const handleAnswerContent = (event, index) => {
     setQuestionEditError('');
-    const tempAnswers = answers;
+    const tempAnswers = [...answers];
     tempAnswers[index].content = event.target.value;
     setAnswers(tempAnswers);
   }
 
   // Deletes answer
-  const deleteAnswer = (event, index) => {
+  const deleteAnswer = (index) => {
     if (answers.length <= 2) {
       setQuestionEditError('There must be at least 2 or more answers.');
       return;
@@ -199,7 +199,7 @@ function QuestionEdit () {
       question,
       answers,
     };
-    const tempQuestions = quiz.questions;
+    const tempQuestions = [...quiz.questions];
     tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
     updateQuestions(tempQuestions);
   }
@@ -333,7 +333,7 @@ function QuestionEdit () {
           {answers.map((answer, index) => (
             <div key={index}>
               <Input
-                defaultValue={answer.content}
+                value={answer.content}
                 onChange={e => handleAnswerContent(e, index)}
                 startAdornment={
                   <InputAdornment position="start">
@@ -349,7 +349,7 @@ function QuestionEdit () {
                     <IconButton
                       aria-label={'delete answer ' + (index + 1)}
                       size='medium'
-                      onClick={e => deleteAnswer(e, index)}
+                      onClick={() => deleteAnswer(index)}
                     >
                       <DeleteIcon fontSize='inherit'/>
                     </IconButton>
