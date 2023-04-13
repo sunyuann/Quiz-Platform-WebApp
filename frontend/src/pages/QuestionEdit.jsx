@@ -79,9 +79,9 @@ function QuestionEdit () {
         </iframe>
       )
     } else {
-      setMediaAttachmentDisplay(<>Error, this should not happen.</>);
+      setMediaAttachmentDisplay(<>Oh no! We&apos;re having some trouble displaying media, please reload page.</>);
     }
-  }, [mediaAttachment]);
+  }, [mediaAttachment, mediaAttachmentType]);
 
   // Handle back button
   const handleBack = () => {
@@ -118,8 +118,6 @@ function QuestionEdit () {
   // Handle media attachment upload url state
   const handleMediaAttachmentUploadURLState = (event) => {
     setMediaAttachmentUploadURL(event.target.value);
-    console.log('url:', mediaAttachmentUploadURL);
-    console.log(mediaAttachmentType);
   }
 
   // Removes media attachment upload url state to default
@@ -188,7 +186,6 @@ function QuestionEdit () {
     const tempAnswers = [...answers];
     tempAnswers.splice(index, 1);
     setAnswers(tempAnswers);
-    console.log('answers:', answers);
   }
 
   // save question data on submit
@@ -204,7 +201,6 @@ function QuestionEdit () {
     };
     const tempQuestions = quiz.questions;
     tempQuestions[params.questionId] = JSON.stringify(updatedQuestion);
-    console.log('testt', tempQuestions[params.questionId]);
     updateQuestions(tempQuestions);
   }
 
@@ -275,6 +271,8 @@ function QuestionEdit () {
           />
         </div>
       </Box>
+      Currently attached media display:
+      <br />
       {mediaAttachmentDisplay}
       <div style={{ marginBottom: '10px', marginTop: '10px' }}>
         <Button
