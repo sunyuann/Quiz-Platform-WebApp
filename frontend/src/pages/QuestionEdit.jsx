@@ -42,7 +42,7 @@ function QuestionEdit () {
       setQuestionEditError(data.error);
       return;
     }
-    const questionInfo = JSON.parse(data.questions[params.questionId]);
+    const questionInfo = JSON.parse(data.questions[params.questionId - 1]);
     setQuiz(data);
     setQuizName(data.name);
     setQuestionType(questionInfo.questionType);
@@ -118,8 +118,6 @@ function QuestionEdit () {
   // Handle media attachment upload url state
   const handleMediaAttachmentUploadURLState = (event) => {
     setMediaAttachmentUploadURL(event.target.value);
-    console.log('url:', mediaAttachmentUploadURL);
-    console.log(mediaAttachmentType);
   }
 
   // Removes media attachment upload url state to default
@@ -188,7 +186,6 @@ function QuestionEdit () {
     const tempAnswers = [...answers];
     tempAnswers.splice(index, 1);
     setAnswers(tempAnswers);
-    console.log('answers:', answers);
   }
 
   // save question data on submit
@@ -203,8 +200,7 @@ function QuestionEdit () {
       answers,
     };
     const tempQuestions = quiz.questions;
-    tempQuestions[params.questionId] = JSON.stringify(updatedQuestion);
-    console.log('testt', tempQuestions[params.questionId]);
+    tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
     updateQuestions(tempQuestions);
   }
 
@@ -231,11 +227,11 @@ function QuestionEdit () {
       {/* TODO: next question and previous question edit button? */}
       <div>
         <FormControl>
-        <FormLabel id="demo-controlled-radio-buttons-group">Question Type</FormLabel>
+        <FormLabel id="question-edit-type-label">Question Type</FormLabel>
         <RadioGroup
           row
-          aria-labelledby="demo-controlled-radio-buttons-group"
-          name="controlled-radio-buttons-group"
+          aria-labelledby="question-edit-type-label"
+          name="question-edit-type-label"
           value={questionType}
           onChange={handleQuestionTypeState}
         >
@@ -254,7 +250,6 @@ function QuestionEdit () {
       >
         <div>
           <TextField
-                id="outlined-number"
                 label="Time Limit"
                 type="number"
                 InputLabelProps={{
@@ -264,7 +259,6 @@ function QuestionEdit () {
                 onChange={handleTimeLimitState}
           />
           <TextField
-              id="outlined-number"
               label="Points available"
               type="number"
               InputLabelProps={{
@@ -293,7 +287,6 @@ function QuestionEdit () {
       </div>
       <div>
         <TextField
-          id='outlined-basic'
           label='Enter youtube URL here'
           InputLabelProps={{
             shrink: true,
@@ -326,7 +319,6 @@ function QuestionEdit () {
       )}
       <br /><br />
       <TextField fullWidth sx={{ m: 0.2 }}
-        id="outlined-number"
         label="Question"
         placeholder="Enter question here"
         InputLabelProps={{
@@ -341,7 +333,6 @@ function QuestionEdit () {
           {answers.map((answer, index) => (
             <div key={index}>
               <Input
-                id="input-with-icon-adornment"
                 defaultValue={answer.content}
                 onChange={e => handleAnswerContent(e, index)}
                 startAdornment={
@@ -368,7 +359,7 @@ function QuestionEdit () {
             </div>
           ))}
       </Box>}
-      <Button variant="contained" onClick={insertAnswer}>Add new question</Button>
+      <Button variant="contained" onClick={insertAnswer}>Add new answer</Button>
       <FormHelperText>Use checkbox to indicate one (or more) correct answers. Select from a range of 2 to 6 answer choices.</FormHelperText>
       { questionEditError && (
         <Alert severity="error" onClose={() => setQuestionEditError('')}>
