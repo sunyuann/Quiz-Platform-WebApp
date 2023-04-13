@@ -24,8 +24,8 @@ function QuestionEdit () {
   const [quizName, setQuizName] = React.useState('');
   const [questionEditError, setQuestionEditError] = React.useState('');
   const [questionType, setQuestionType] = React.useState('');
-  const [timeLimit, setTimeLimit] = React.useState(null);
-  const [points, setPoints] = React.useState(null);
+  const [timeLimit, setTimeLimit] = React.useState('');
+  const [points, setPoints] = React.useState('');
   const [mediaAttachmentOrig, setOrigMediaAttachmentOrig] = React.useState('');
   const [mediaAttachment, setMediaAttachment] = React.useState('');
   const [mediaAttachmentDisplay, setMediaAttachmentDisplay] = React.useState(null);
