@@ -24,9 +24,8 @@ function QuestionEdit () {
   const [quizName, setQuizName] = React.useState('');
   const [questionEditError, setQuestionEditError] = React.useState('');
   const [questionType, setQuestionType] = React.useState('');
-  const [timeLimit, setTimeLimit] = React.useState(null);
-  const [points, setPoints] = React.useState(null);
-  const [mediaAttachmentOrig, setOrigMediaAttachmentOrig] = React.useState('');
+  const [timeLimit, setTimeLimit] = React.useState('');
+  const [points, setPoints] = React.useState('');
   const [mediaAttachment, setMediaAttachment] = React.useState('');
   const [mediaAttachmentDisplay, setMediaAttachmentDisplay] = React.useState(null);
   const [mediaAttachmentType, setMediaAttachmentType] = React.useState('');
@@ -39,28 +38,25 @@ function QuestionEdit () {
   React.useEffect(async () => {
     const data = await apiCall('admin/quiz/' + params.id);
     if (data.error) {
-      setQuestionEditError(data.error);
+      setQuestionEditError({ severity: 'error', text: data.error });
       return;
     }
-    const questionInfo = JSON.parse(data.questions[params.questionId]);
+    const questionInfo = JSON.parse(data.questions[params.questionId - 1]);
     setQuiz(data);
     setQuizName(data.name);
     setQuestionType(questionInfo.questionType);
     setTimeLimit(questionInfo.timeLimit);
     setPoints(questionInfo.points);
-    setOrigMediaAttachmentOrig(questionInfo.mediaAttachment);
-    setMediaAttachment(questionInfo.mediaAttachment);
     setMediaAttachmentType(questionInfo.mediaAttachmentType);
+    setMediaAttachment(questionInfo.mediaAttachment);
     setQuestion(questionInfo.question);
     setAnswers(questionInfo.answers);
   }, []);
 
   // render image on page load and on file input
-  React.useEffect(async () => {
+  React.useEffect(() => {
     if (mediaAttachment === 'none') {
       setMediaAttachmentDisplay(<>There is currently no image or video attached to this question.</>);
-    } else if (mediaAttachment === 'no image inserted') {
-      setMediaAttachment(mediaAttachmentOrig);
     } else if (mediaAttachmentType === 'image') {
       setMediaAttachmentDisplay(
         <img src={mediaAttachment}
@@ -90,6 +86,25 @@ function QuestionEdit () {
 
   // Handle question type radio state
   const handleQuestionTypeState = (event) => {
+    // If changing multi -> single, ensure only 1 correct is ticked
+    let nonCorrect = true;
+    let changed = false;
+    if (event.target.value === 'singleChoice') {
+      const tempAnswers = [...answers];
+      for (const answer of tempAnswers) {
+        if (answer.isCorrect) {
+          if (nonCorrect) {
+            nonCorrect = false;
+          } else {
+            changed = true;
+            answer.isCorrect = false;
+          }
+        }
+      }
+      if (changed) {
+        setAnswers(tempAnswers);
+      }
+    }
     setQuestionType(event.target.value);
   };
 
@@ -111,25 +126,26 @@ function QuestionEdit () {
       setMediaAttachment(image);
     } else {
       setMediaAttachmentType('none');
-      setMediaAttachment('no image inserted');
+      setMediaAttachment('none');
     }
+    setMediaAttachmentError('');
+    // Some browsers don't trigger onChange when selecting same file again
+    event.target.value = null;
   }
 
   // Handle media attachment upload url state
   const handleMediaAttachmentUploadURLState = (event) => {
     setMediaAttachmentUploadURL(event.target.value);
-    console.log('url:', mediaAttachmentUploadURL);
-    console.log(mediaAttachmentType);
   }
 
   // Removes media attachment upload url state to default
-  const deleteMediaAttachmentState = async () => {
+  const deleteMediaAttachmentState = () => {
     setMediaAttachmentType('none');
-    setMediaAttachment('no image inserted');
+    setMediaAttachment('none');
   }
 
   // on upload, grab url input from text field and insert video
-  const uploadMediaAttachmentStateURL = async () => {
+  const uploadMediaAttachmentStateURL = () => {
     if (mediaAttachmentUploadURL !== '' || mediaAttachmentUploadURL === null) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       const match = mediaAttachmentUploadURL.match(regExp);
@@ -154,7 +170,7 @@ function QuestionEdit () {
   // insert new answer into answers
   const insertAnswer = () => {
     if (answers.length >= 6) {
-      setQuestionEditError('There cannot be more than 6 answers.');
+      setQuestionEditError({ severity: 'error', text: 'There cannot be more than 6 answers.' });
       return;
     }
     setQuestionEditError('');
@@ -165,7 +181,12 @@ function QuestionEdit () {
   // Handle answers isCorrect state
   const handleAnswerIsCorrect = (event, index) => {
     setQuestionEditError('');
-    const tempAnswers = answers;
+    const tempAnswers = [...answers];
+    if (questionType === 'singleChoice') {
+      for (const answer of tempAnswers) {
+        answer.isCorrect = false;
+      }
+    }
     tempAnswers[index].isCorrect = event.target.checked;
     setAnswers(tempAnswers);
   }
@@ -173,22 +194,21 @@ function QuestionEdit () {
   // Handle answer content state
   const handleAnswerContent = (event, index) => {
     setQuestionEditError('');
-    const tempAnswers = answers;
+    const tempAnswers = [...answers];
     tempAnswers[index].content = event.target.value;
     setAnswers(tempAnswers);
   }
 
   // Deletes answer
-  const deleteAnswer = (event, index) => {
+  const deleteAnswer = (index) => {
     if (answers.length <= 2) {
-      setQuestionEditError('There must be at least 2 or more answers.');
+      setQuestionEditError({ severity: 'error', text: 'There must be at least 2 or more answers.' });
       return;
     }
     setQuestionEditError('');
     const tempAnswers = [...answers];
     tempAnswers.splice(index, 1);
     setAnswers(tempAnswers);
-    console.log('answers:', answers);
   }
 
   // save question data on submit
@@ -202,17 +222,17 @@ function QuestionEdit () {
       question,
       answers,
     };
-    const tempQuestions = quiz.questions;
-    tempQuestions[params.questionId] = JSON.stringify(updatedQuestion);
-    console.log('testt', tempQuestions[params.questionId]);
+    const tempQuestions = [...quiz.questions];
+    tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
     updateQuestions(tempQuestions);
+    setQuestionEditError({ severity: 'success', text: 'Changes saved' })
   }
 
   // Only set new state if update to server is good
   const updateQuestions = async (questions) => {
     const response = await apiCall('admin/quiz/' + params.id, 'PUT', { questions });
     if (response.error) {
-      setQuestionEditError(response.error);
+      setQuestionEditError({ severity: 'error', text: response.error });
       return;
     }
     setQuiz((prevState) => {
@@ -231,11 +251,11 @@ function QuestionEdit () {
       {/* TODO: next question and previous question edit button? */}
       <div>
         <FormControl>
-        <FormLabel id="demo-controlled-radio-buttons-group">Question Type</FormLabel>
+        <FormLabel id="question-edit-type-label">Question Type</FormLabel>
         <RadioGroup
           row
-          aria-labelledby="demo-controlled-radio-buttons-group"
-          name="controlled-radio-buttons-group"
+          aria-labelledby="question-edit-type-label"
+          name="question-edit-type-label"
           value={questionType}
           onChange={handleQuestionTypeState}
         >
@@ -254,7 +274,6 @@ function QuestionEdit () {
       >
         <div>
           <TextField
-                id="outlined-number"
                 label="Time Limit"
                 type="number"
                 InputLabelProps={{
@@ -264,7 +283,6 @@ function QuestionEdit () {
                 onChange={handleTimeLimitState}
           />
           <TextField
-              id="outlined-number"
               label="Points available"
               type="number"
               InputLabelProps={{
@@ -293,7 +311,6 @@ function QuestionEdit () {
       </div>
       <div>
         <TextField
-          id='outlined-basic'
           label='Enter youtube URL here'
           InputLabelProps={{
             shrink: true,
@@ -326,7 +343,6 @@ function QuestionEdit () {
       )}
       <br /><br />
       <TextField fullWidth sx={{ m: 0.2 }}
-        id="outlined-number"
         label="Question"
         placeholder="Enter question here"
         InputLabelProps={{
@@ -341,13 +357,12 @@ function QuestionEdit () {
           {answers.map((answer, index) => (
             <div key={index}>
               <Input
-                id="input-with-icon-adornment"
-                defaultValue={answer.content}
+                value={answer.content}
                 onChange={e => handleAnswerContent(e, index)}
                 startAdornment={
                   <InputAdornment position="start">
                     <Checkbox
-                      defaultChecked={answer.isCorrect}
+                      checked={answer.isCorrect}
                       onChange={e => handleAnswerIsCorrect(e, index)}
                       inputProps={{ 'aria-label': 'controlled' }}
                     />
@@ -358,7 +373,7 @@ function QuestionEdit () {
                     <IconButton
                       aria-label={'delete answer ' + (index + 1)}
                       size='medium'
-                      onClick={e => deleteAnswer(e, index)}
+                      onClick={() => deleteAnswer(index)}
                     >
                       <DeleteIcon fontSize='inherit'/>
                     </IconButton>
@@ -368,11 +383,11 @@ function QuestionEdit () {
             </div>
           ))}
       </Box>}
-      <Button variant="contained" onClick={insertAnswer}>Add new question</Button>
+      <Button variant="contained" onClick={insertAnswer}>Add new answer</Button>
       <FormHelperText>Use checkbox to indicate one (or more) correct answers. Select from a range of 2 to 6 answer choices.</FormHelperText>
       { questionEditError && (
-        <Alert severity="error" onClose={() => setQuestionEditError('')}>
-          {questionEditError}
+        <Alert severity={questionEditError.severity} onClose={() => setQuestionEditError('')}>
+          {questionEditError.text}
         </Alert>
       )}
 
