@@ -82,9 +82,9 @@ function QuizControl () {
           onClick={handleNextQuestion}
           disabled={!results.active}
         >
-          { results.position === '-1'
-            ? 'Next Question'
-            : 'Start Quiz'
+          { results.position === -1
+            ? 'Start Quiz'
+            : 'Next Question'
           }
         </Button>
         <Button
@@ -103,7 +103,7 @@ function QuizControl () {
       { (results.active && results.position !== -1) &&
           <div>{results.questions[results.position]}</div>
       }
-      { results.active &&
+      { !results.active &&
           <div>Component that shows graphs and stuff</div>
       }
     </>
