@@ -50,6 +50,11 @@ function Dashboard () {
     await fetchAllQuizzes();
   }
 
+  // Handle Quiz Control panel button (and QuizStopPopupYes button)
+  const handleQuizControl = (quizID, sessionID) => {
+    navigate(`/quiz/control/${quizID}/${sessionID}`);
+  }
+
   // Handle Quiz Delete button
   const handleQuizDelete = async (id) => {
     const response = await apiCall('admin/quiz/' + id, 'DELETE');
@@ -79,7 +84,7 @@ function Dashboard () {
     }
     if (data.active) {
       updateQuizActiveState(id, data.active)
-      setSessionID(`localhost:${BACKEND_PORT}/play/${data.active}`);
+      setSessionID(data.active);
     } else {
       setNewQuizError(`Backend did not set Quiz ${id} as active`);
     }
@@ -87,7 +92,7 @@ function Dashboard () {
 
   // Handle Quiz Start Popup Copy button
   const handleQuizStartCopy = () => {
-    navigator.clipboard.writeText(sessionID);
+    navigator.clipboard.writeText(`localhost:${BACKEND_PORT}/play/${sessionID}`);
   }
 
   // Handle Quiz Stop button
@@ -105,12 +110,8 @@ function Dashboard () {
       setNewQuizError(`Backend did not stop Quiz ${id}, sessionID: ${sessionID}`);
     } else {
       updateQuizActiveState(id, data.active)
-      setQuizStopped(sessionID);
+      setQuizStopped({ quizID: id, sessionID });
     }
-  }
-
-  const handleQuizStopYes = () => {
-    navigate(`/quiz/results/${sessionID}`);
   }
 
   // Handle Popup close
@@ -159,9 +160,10 @@ function Dashboard () {
             <GameCard
               quiz={quiz}
               handleStart={handleQuizStart}
-              handleStop={handleQuizStop}
               handleEdit={handleQuizEdit}
               handleDelete={handleQuizDelete}
+              handleStop={handleQuizStop}
+              handleControl={handleQuizControl}
             />
           </div>
         ))}
@@ -183,10 +185,10 @@ function Dashboard () {
       }
       {quizStopped &&
         <GamePopup
-          title={`Game ${quizStopped} Stopped`}
+          title={`Game ${quizStopped.sessionID} Stopped`}
           description="Would you like to view the results?"
           yesText="Yes"
-          handleYes={handleQuizStopYes}
+          handleYes={() => handleQuizControl(quizStopped.quizID, quizStopped.sessionID)}
           handleClose={handleQuizPopupClose}
         />
       }
