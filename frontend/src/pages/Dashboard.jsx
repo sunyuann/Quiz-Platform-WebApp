@@ -158,7 +158,6 @@ function Dashboard () {
           <div key={quiz.id}>
             <GameCard
               quiz={quiz}
-              started={quiz.active}
               handleStart={handleQuizStart}
               handleStop={handleQuizStop}
               handleEdit={handleQuizEdit}
