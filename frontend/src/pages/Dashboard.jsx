@@ -1,16 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiCall } from '../helpers';
+import { apiCall, BACKEND_PORT } from '../helpers';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import GameCard from '../components/GameCard';
+import GamePopup from '../components/GamePopup';
 
 function Dashboard () {
   const [newGameShow, setNewGameShow] = React.useState(false);
   const [newQuizError, setNewQuizError] = React.useState('');
   const [newQuizName, setNewQuizName] = React.useState('');
   const [quizError, setQuizError] = React.useState('');
+  const [quizStopped, setQuizStopped] = React.useState('');
   const [quizzes, setQuizzes] = React.useState([]);
+  const [sessionID, setSessionID] = React.useState('');
   const navigate = useNavigate();
 
   // Fetch quizzes
@@ -63,6 +66,70 @@ function Dashboard () {
     navigate('/quiz/edit/' + id);
   }
 
+  // Handle Quiz Start button
+  const handleQuizStart = async (id) => {
+    const response = await apiCall(`admin/quiz/${id}/start`, 'POST');
+    if (response.error) {
+      setNewQuizError(`Error starting quiz ${id}: ${response.error}`);
+      return;
+    }
+    const data = await apiCall('admin/quiz/' + id, 'GET');
+    if (data.error) {
+      setNewQuizError(`Error getting game info ${id}: ${response.error}`);
+    }
+    if (data.active) {
+      updateQuizActiveState(id, data.active)
+      setSessionID(`localhost:${BACKEND_PORT}/play/${data.active}`);
+    } else {
+      setNewQuizError(`Backend did not set Quiz ${id} as active`);
+    }
+  }
+
+  // Handle Quiz Start Popup Copy button
+  const handleQuizStartCopy = () => {
+    navigator.clipboard.writeText(sessionID);
+  }
+
+  // Handle Quiz Stop button
+  const handleQuizStop = async (id, sessionID) => {
+    const response = await apiCall(`admin/quiz/${id}/end`, 'POST');
+    if (response.error) {
+      setNewQuizError(`Error stopping quiz ${id}: ${response.error}`);
+      return;
+    }
+    const data = await apiCall('admin/quiz/' + id, 'GET');
+    if (data.error) {
+      setNewQuizError(`Error getting game info ${id}: ${response.error}`);
+    }
+    if (data.active) {
+      setNewQuizError(`Backend did not stop Quiz ${id}, sessionID: ${sessionID}`);
+    } else {
+      updateQuizActiveState(id, data.active)
+      setQuizStopped(sessionID);
+    }
+  }
+
+  const handleQuizStopYes = () => {
+    navigate(`/quiz/results/${sessionID}`);
+  }
+
+  // Handle Popup close
+  const handleQuizPopupClose = () => {
+    setSessionID('');
+    setQuizStopped('');
+  }
+
+  // Update Quiz State for Start/Stop button
+  const updateQuizActiveState = (quizID, sessionID) => {
+    const newQuizzes = [...quizzes];
+    for (const quiz of newQuizzes) {
+      if (quiz.id === quizID) {
+        quiz.active = sessionID;
+      }
+    }
+    setQuizzes(newQuizzes);
+  }
+
   // TODO: break into more compoennts
   return (
     <>
@@ -77,19 +144,26 @@ function Dashboard () {
             Form here for new game!<br />
             Name: <input value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
             <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
-            { newQuizError && (
+          </>
+        )}
+        { newQuizError && (
               <Alert severity="error" onClose={() => setNewQuizError('')}>
                 {newQuizError}
               </Alert>
-            )}
-          </>
         )}
       </div>
       <div>
         List of games:<br />
         {quizzes.map(quiz => (
           <div key={quiz.id}>
-            <GameCard quiz={quiz} handleEdit={handleQuizEdit} handleDelete={handleQuizDelete} />
+            <GameCard
+              quiz={quiz}
+              started={quiz.active}
+              handleStart={handleQuizStart}
+              handleStop={handleQuizStop}
+              handleEdit={handleQuizEdit}
+              handleDelete={handleQuizDelete}
+            />
           </div>
         ))}
         { quizError && (
@@ -99,6 +173,24 @@ function Dashboard () {
         )}
       </div>
       <hr />
+      {sessionID &&
+        <GamePopup
+          title="Game Session ID"
+          description={sessionID}
+          yesText="Copy URL"
+          handleYes={handleQuizStartCopy}
+          handleClose={handleQuizPopupClose}
+        />
+      }
+      {quizStopped &&
+        <GamePopup
+          title={`Game ${quizStopped} Stopped`}
+          description="Would you like to view the results?"
+          yesText="Yes"
+          handleYes={handleQuizStopYes}
+          handleClose={handleQuizPopupClose}
+        />
+      }
     </>
   )
 }

@@ -5,7 +5,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 
-function GameCard ({ quiz, handleEdit, handleDelete }) {
+function GameCard ({ quiz, started, handleStart, handleStop, handleEdit, handleDelete }) {
   let quizTime = 0;
   for (const question of quiz.questions) {
     const questionInfo = JSON.parse(question);
@@ -42,6 +42,10 @@ function GameCard ({ quiz, handleEdit, handleDelete }) {
           </div>
         </CardContent>
         <CardActions>
+          {started
+            ? (<Button size="small" onClick={() => { handleStop(quiz.id, quiz.active) }}>Stop</Button>)
+            : (<Button size="small" onClick={() => { handleStart(quiz.id) }}>Start</Button>)
+          }
           <Button size="small" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
           <Button size="small" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
         </CardActions>
