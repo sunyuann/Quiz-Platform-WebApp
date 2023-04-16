@@ -41,7 +41,7 @@ function QuestionEdit () {
       setQuestionEditError({ severity: 'error', text: data.error });
       return;
     }
-    const questionInfo = JSON.parse(data.questions[params.questionId - 1]);
+    const questionInfo = data.questions[params.questionId - 1];
     setQuiz(data);
     setQuizName(data.name);
     setQuestionType(questionInfo.questionType);
@@ -223,7 +223,7 @@ function QuestionEdit () {
       answers,
     };
     const tempQuestions = [...quiz.questions];
-    tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
+    tempQuestions[params.questionId - 1] = updatedQuestion;
     updateQuestions(tempQuestions);
     setQuestionEditError({ severity: 'success', text: 'Changes saved' })
   }

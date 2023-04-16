@@ -8,8 +8,7 @@ import CardMedia from '@mui/material/CardMedia';
 function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, handleControl }) {
   let quizTime = 0;
   for (const question of quiz.questions) {
-    const questionInfo = JSON.parse(question);
-    quizTime += Number(questionInfo.timeLimit);
+    quizTime += Number(question.timeLimit);
   }
   return (
     <>

@@ -102,7 +102,7 @@ function QuizEdit () {
         },
       ],
     };
-    const questions = [...quiz.questions, JSON.stringify(newQuestion)];
+    const questions = [...quiz.questions, newQuestion];
     updateQuestions(questions);
   }
 
