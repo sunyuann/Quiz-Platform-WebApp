@@ -1,10 +1,12 @@
 import React from 'react';
-import { useContext, Context } from '../context';
+import { useNavigate } from 'react-router-dom';
+import { Context, useContext } from '../context';
 import { apiCall } from '../helpers';
 import Alert from '@mui/material/Alert';
 
 function Register () {
   const { setters } = useContext(Context);
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
@@ -17,7 +19,7 @@ function Register () {
       return;
     }
     setters.setManagedToken(data.token);
-    localStorage.setItem('token', data.token);
+    navigate('/dashboard');
   }
   return (
     <>

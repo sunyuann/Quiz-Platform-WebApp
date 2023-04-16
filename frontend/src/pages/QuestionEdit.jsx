@@ -1,6 +1,7 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { apiCall, fileToDataUrl } from '../helpers';
+import BackButton from '../components/BackButton'
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -18,7 +19,6 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 function QuestionEdit () {
-  const navigate = useNavigate();
   const params = useParams();
   const [quiz, setQuiz] = React.useState(null);
   const [quizName, setQuizName] = React.useState('');
@@ -41,7 +41,7 @@ function QuestionEdit () {
       setQuestionEditError({ severity: 'error', text: data.error });
       return;
     }
-    const questionInfo = JSON.parse(data.questions[params.questionId - 1]);
+    const questionInfo = data.questions[params.questionId - 1];
     setQuiz(data);
     setQuizName(data.name);
     setQuestionType(questionInfo.questionType);
@@ -78,11 +78,6 @@ function QuestionEdit () {
       setMediaAttachmentDisplay(<>Error, this should not happen.</>);
     }
   }, [mediaAttachment]);
-
-  // Handle back button
-  const handleBack = () => {
-    navigate(-1);
-  }
 
   // Handle question type radio state
   const handleQuestionTypeState = (event) => {
@@ -223,7 +218,7 @@ function QuestionEdit () {
       answers,
     };
     const tempQuestions = [...quiz.questions];
-    tempQuestions[params.questionId - 1] = JSON.stringify(updatedQuestion);
+    tempQuestions[params.questionId - 1] = updatedQuestion;
     updateQuestions(tempQuestions);
     setQuestionEditError({ severity: 'success', text: 'Changes saved' })
   }
@@ -245,7 +240,7 @@ function QuestionEdit () {
 
   return (
     <>
-      <button onClick={handleBack}>Back</button>
+      <BackButton />
       <h1>Quiz: {quizName}</h1>
       <h2>Question {params.questionId}</h2>
       {/* TODO: next question and previous question edit button? */}

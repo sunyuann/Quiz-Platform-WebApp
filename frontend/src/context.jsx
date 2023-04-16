@@ -1,7 +1,7 @@
 import React, { createContext } from 'react';
 
 export const initialValue = {
-  token: null,
+  token: localStorage.getItem('token'),
 };
 
 export const Context = createContext(initialValue);
