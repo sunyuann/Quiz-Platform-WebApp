@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiCall, fileToDataUrl } from '../helpers';
+import BackButton from '../components/BackButton'
 import Alert from '@mui/material/Alert';
 import QuestionCard from '../components/QuestionCard';
 
@@ -25,11 +26,6 @@ function QuizEdit () {
     setThumb(data.thumbnail);
     setQuiz(data)
   }, []);
-
-  // Handle back button
-  const handleBack = () => {
-    navigate(-1);
-  }
 
   // Handle name state
   const handleNameState = (event) => {
@@ -119,9 +115,7 @@ function QuizEdit () {
   }
   return (
     <>
-      <div>
-        <button onClick={handleBack}>Back</button>
-      </div>
+      <BackButton />
       { quiz && (
         <>
           <div>

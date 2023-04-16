@@ -8,6 +8,7 @@ import { Context, initialValue } from './context';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Page404 from './pages/Page404'
+import Play from './pages/Play';
 import Register from './pages/Register';
 import NavBar from './components/NavBar';
 import QuestionEdit from './pages/QuestionEdit';
@@ -40,6 +41,8 @@ function App () {
             <Route path="/" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/play" element={<Play />} />
+            <Route path="/play/:sessionID" element={<Play />} />
             <Route path="/quiz/control/:quizID/:sessionID" element={<QuizControl />} />
             <Route path="/quiz/edit/:id" element={<QuizEdit />} />
             <Route path="/quiz/edit/:id/:questionId" element={<QuestionEdit />} />

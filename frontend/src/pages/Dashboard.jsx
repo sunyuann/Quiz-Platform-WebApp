@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiCall, BACKEND_PORT } from '../helpers';
+import { apiCall } from '../helpers';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import GameCard from '../components/GameCard';
@@ -92,7 +92,7 @@ function Dashboard () {
 
   // Handle Quiz Start Popup Copy button
   const handleQuizStartCopy = () => {
-    navigator.clipboard.writeText(`localhost:${BACKEND_PORT}/play/${sessionID}`);
+    navigator.clipboard.writeText(`${window.location.origin}/play/${sessionID}`);
   }
 
   // Handle Quiz Stop button

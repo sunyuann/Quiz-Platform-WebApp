@@ -1,5 +1,5 @@
 import config from './config.json'
-export const BACKEND_PORT = config.BACKEND_PORT;
+const BACKEND_PORT = config.BACKEND_PORT;
 
 // api call function
 export async function apiCall (path, method, body) {
