@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiCall } from '../helpers';
+import AnswerBoxes from '../components/AnswerBoxes';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
@@ -13,15 +14,16 @@ function QuizControl () {
   const params = useParams();
   const [controlAlert, setControlAlert] = React.useState('');
   const [results, setResults] = React.useState({ active: false, position: -1 });
+  const [answers, setAnswers] = React.useState([])
 
   // Fetch session status on first render
   React.useEffect(async () => {
     updateResults();
   }, []);
 
-  // Debug
   React.useEffect(async () => {
     console.log(results);
+    setAnswers(results.questions[results.position].answers.map((item) => item.content))
   }, [results]);
 
   // Returns string describing position/stage of session
@@ -101,7 +103,12 @@ function QuizControl () {
       )}
       { /* TODO probably make something like in Kahoot with boxes, editable as well */ }
       { (results.active && results.position !== -1) &&
-          <div>{results.questions[results.position]}</div>
+          <>
+          <div>
+            {results.questions[results.position].question}
+          </div>
+          <AnswerBoxes height="500px" answers={answers} ></AnswerBoxes>
+          </>
       }
       { !results.active &&
           <div>Component that shows graphs and stuff</div>
