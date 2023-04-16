@@ -5,34 +5,34 @@ import AnswerBoxes from '../components/AnswerBoxes';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
-// results.position === -1 means Lobby time.
-// results.position === 0 means question 1.
-// results.position === results.questions.length means End of quiz.
+// status.position === -1 means Lobby time.
+// status.position === 0 means question 1.
+// status.position === status.questions.length means End of quiz.
 
 function QuizControl () {
   const navigate = useNavigate();
   const params = useParams();
   const [controlAlert, setControlAlert] = React.useState('');
-  const [results, setResults] = React.useState({ active: false, position: -1 });
   const [answers, setAnswers] = React.useState([])
+  const [status, setStatus] = React.useState({ active: false, position: -1 });
 
   // Fetch session status on first render
   React.useEffect(async () => {
-    updateResults();
+    updateStatus();
   }, []);
 
   React.useEffect(async () => {
-    console.log(results);
-    setAnswers(results.questions[results.position].answers.map((item) => item.content))
-  }, [results]);
+    console.log(status);
+    setAnswers(status.questions[status.position].answers.map((item) => item.content))
+  }, [status]);
 
   // Returns string describing position/stage of session
   const getCurrentStage = () => {
-    const pos = results.position;
+    const pos = status.position;
     switch (pos) {
       case -1:
         return 'Lobby';
-      case results.questions.length:
+      case status.questions.length:
         return 'Quiz Finished';
       default:
         return `Question ${pos + 1}`;
@@ -50,7 +50,7 @@ function QuizControl () {
       setControlAlert('Quiz advance error: ' + response.error);
       return;
     }
-    updateResults();
+    updateStatus();
   }
 
   const handleStopGame = async () => {
@@ -59,16 +59,16 @@ function QuizControl () {
       setControlAlert('Quiz end error: ' + response.error);
       return;
     }
-    updateResults();
+    updateStatus();
   }
 
-  const updateResults = async () => {
+  const updateStatus = async () => {
     const response = await apiCall(`admin/session/${params.sessionID}/status`, 'GET');
     if (response.error) {
       setControlAlert("Couldn't get session info: " + response.error);
       return;
     }
-    setResults(response.results);
+    setStatus(response.results);
   }
 
   return (
@@ -82,16 +82,16 @@ function QuizControl () {
       <div>
         <Button
           onClick={handleNextQuestion}
-          disabled={!results.active}
+          disabled={!status.active}
         >
-          { results.position === -1
+          { status.position === -1
             ? 'Start Quiz'
             : 'Next Question'
           }
         </Button>
         <Button
           onClick={handleStopGame}
-          disabled={!results.active}
+          disabled={!status.active}
         >
           Stop Game
         </Button>
@@ -101,16 +101,16 @@ function QuizControl () {
               {controlAlert}
             </Alert>
       )}
-      { /* TODO probably make something like in Kahoot with boxes, editable as well */ }
-      { (results.active && results.position !== -1) &&
+      { /* TODO Adjust height based on window size or something */ }
+      { (status.active && status.position !== -1) &&
           <>
           <div>
-            {results.questions[results.position].question}
+            {status.questions[status.position].question}
           </div>
-          <AnswerBoxes height="500px" answers={answers} ></AnswerBoxes>
+          <AnswerBoxes height="500px" answers={answers} handleClick={() => {}}></AnswerBoxes>
           </>
       }
-      { !results.active &&
+      { !status.active &&
           <div>Component that shows graphs and stuff</div>
       }
     </>
