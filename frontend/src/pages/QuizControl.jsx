@@ -13,18 +13,36 @@ function QuizControl () {
   const navigate = useNavigate();
   const params = useParams();
   const [controlAlert, setControlAlert] = React.useState('');
-  const [answers, setAnswers] = React.useState([])
-  const [status, setStatus] = React.useState({ active: false, position: -1 });
+  const [answers, setAnswers] = React.useState([]);
+  const [results, setResults] = React.useState([]);
+  const [status, setStatus] = React.useState({ active: true, position: -1 });
 
-  // Fetch session status on first render
-  React.useEffect(async () => {
+  // Fetch session status and results on first render
+  React.useEffect(() => {
     updateStatus();
   }, []);
 
+  // When status changes, update answers
+  // When status.active is false, get results
   React.useEffect(async () => {
-    console.log(status);
-    setAnswers(status.questions[status.position].answers.map((item) => item.content))
+    console.log('status ', status);
+    if (status.active && status.position !== -1) {
+      setAnswers(status.questions[status.position].answers.map((item) => item.content));
+    }
+    if (!status.active) {
+      const data = await apiCall(`admin/session/${params.sessionID}/results`, 'GET');
+      if (data.error) {
+        setControlAlert('Failed to get results: ' + data.error);
+        return;
+      }
+      setResults(data);
+    }
   }, [status]);
+
+  // Debug
+  React.useEffect(() => {
+    console.log('results ', results);
+  }, [results]);
 
   // Returns string describing position/stage of session
   const getCurrentStage = () => {
@@ -111,7 +129,10 @@ function QuizControl () {
           </>
       }
       { !status.active &&
-          <div>Component that shows graphs and stuff</div>
+          (<>
+            <div>Component that shows graphs and stuff</div>
+            <div>{JSON.stringify(results)}</div>
+          </>)
       }
     </>
   )
