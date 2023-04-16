@@ -19,7 +19,7 @@ function Play () {
       setPlayAlert('Error joining Session: ' + data.error);
       return;
     }
-    setPlayerID(data.playerID);
+    setPlayerID(data.playerId);
   }
 
   const handleNameState = (event) => {
