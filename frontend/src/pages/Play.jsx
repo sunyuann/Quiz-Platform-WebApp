@@ -12,6 +12,30 @@ function Play () {
   const [playAlert, setPlayAlert] = React.useState(null);
   const [playerID, setPlayerID] = React.useState(null);
   const [sessionID, setSessionID] = React.useState(params.sessionID ? params.sessionID : '');
+  const [started, setStarted] = React.useState(false);
+
+  // Poll to see if Quiz has started
+  React.useEffect(() => {
+    if (playerID && !started) {
+      const intervalId = setInterval(async () => {
+        const data = await apiCall(`play/${playerID}/status`, 'GET');
+        if (data.error) {
+          setPlayAlert('Error joining Session: ' + data.error);
+          return;
+        }
+        setStarted(data.started);
+      }, 1000);
+
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [playerID, started]);
+
+  // Debug
+  React.useEffect(async () => {
+    console.log('started ', started)
+  }, [started]);
 
   const handleClick = async () => {
     const data = await apiCall(`play/join/${sessionID}`, 'POST', { name });
