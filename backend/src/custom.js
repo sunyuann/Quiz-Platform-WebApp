@@ -3,6 +3,7 @@
  object that doesn't contain any important meta data (e.g. the answer)
  to return to a "player"
 */
+// The object returned from GET /play/:playerid/question
 export const quizQuestionPublicReturn = question => {
   console.log('quizQuestionPublicReturn: ', question);
   const stripped = {...question};
@@ -33,6 +34,8 @@ export const quizQuestionGetCorrectAnswers = question => {
  For a given data structure of a question, get the IDs of
  all of the answers, correct or incorrect.
 */
+// The object returned from GET /play/:playerid/answer
+// Only call after quizQuestionGetDuration() has elapsed since quizQuestionPublicReturn().isoTimeLastQuestionStarted
 export const quizQuestionGetAnswers = question => {
   console.log('quizQuestionGetAnswers: ', question);
   const ansIDs = question.reduce((total, index) => {

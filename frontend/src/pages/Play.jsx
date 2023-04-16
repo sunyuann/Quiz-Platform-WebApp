@@ -35,6 +35,12 @@ function Play () {
   // Debug
   React.useEffect(async () => {
     console.log('started ', started)
+    let data = await apiCall(`play/${playerID}/question`, 'GET');
+    console.log('question GET ', data);
+    data = await apiCall(`play/${playerID}/answer`, 'GET');
+    console.log('answer GET ', data);
+    data = await apiCall(`play/${playerID}/results`, 'GET');
+    console.log('results GET ', data);
   }, [started]);
 
   const handleClick = async () => {
