@@ -91,6 +91,9 @@ function QuizControl () {
         {'Current stage: ' + getCurrentStage()}
       </div>
       <div>
+        {'Players: ' + status.players}
+      </div>
+      <div>
         <Button
           onClick={handleNextQuestion}
           disabled={!status.active}
