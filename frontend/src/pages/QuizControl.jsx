@@ -91,7 +91,7 @@ function QuizControl () {
         {'Current stage: ' + getCurrentStage()}
       </div>
       <div>
-        {'Players: ' + status.players}
+        {'Players: ' + (status.players && status.players.length ? status.players.join(', ') : 'None.')}
       </div>
       <div>
         <Button
