@@ -4,8 +4,13 @@
  to return to a "player"
 */
 export const quizQuestionPublicReturn = question => {
-  console.log('See question: ', question);
-  return question;
+  console.log('quizQuestionPublicReturn: ', question);
+  const stripped = {...question};
+  for (const answer of stripped.answers) {
+    delete answer.isCorrect;
+  }
+  console.log('quizQuestionPublicReturn stripped ', stripped);
+  return stripped;
 };
 
 /*
@@ -13,9 +18,15 @@ export const quizQuestionPublicReturn = question => {
  the correct answers (minimum 1).
 */
 export const quizQuestionGetCorrectAnswers = question => {
-  return [
-    123,
-  ]; // For a single answer
+  console.log('quizQuestionGetCorrectAnswers: ', question);
+  // We assume isCorrect adheres to single/multi already
+  const corrects = question.reduce((total, item, index) => {
+    if (item.isCorrect) {
+      total.push(index);
+    }
+  });
+  console.log('quizQuestionGetCorrectAnswers corrects ', corrects);
+  return corrects;
 };
 
 /*
@@ -23,11 +34,12 @@ export const quizQuestionGetCorrectAnswers = question => {
  all of the answers, correct or incorrect.
 */
 export const quizQuestionGetAnswers = question => {
-  return [
-    123,
-    456,
-    678,
-  ]; // For a single answer
+  console.log('quizQuestionGetAnswers: ', question);
+  const ansIDs = question.reduce((total, index) => {
+    total.push(index);
+  });
+  console.log('quizQuestionGetAnswers ansIDs ', ansIDs);
+  return ansIDs;
 };
 
 /*
@@ -35,5 +47,8 @@ export const quizQuestionGetAnswers = question => {
  of the question once it starts. (Seconds)
 */
 export const quizQuestionGetDuration = question => {
-  return 10;
+  console.log('quizQuestionGetDuration: ', question);
+  const duration = question.timeLimit
+  console.log('quizQuestionGetDuration duration ', duration);
+  return duration;
 };
