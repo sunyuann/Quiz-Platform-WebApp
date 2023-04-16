@@ -24,11 +24,11 @@ export async function apiCall (path, method, body) {
 
   try {
     const response = await fetch(`http://localhost:${BACKEND_PORT}/` + path, options);
-    if (!response.ok) {
+    const data = await response.json();
+    if (!response.ok && !data.error) {
       response.error = `${method} ${response.status}(${response.statusText}): ${response.url}`;
       return response;
     }
-    const data = await response.json();
     return data;
   } catch (error) {
     console.log('Failed to fetch, have you started the backend?');
