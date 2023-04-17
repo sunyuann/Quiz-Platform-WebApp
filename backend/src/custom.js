@@ -6,7 +6,7 @@
 // The object returned from GET /play/:playerid/question
 export const quizQuestionPublicReturn = question => {
   console.log('quizQuestionPublicReturn: ', question);
-  const stripped = {...question};
+  const stripped = JSON.parse(JSON.stringify(question))
   for (const answer of stripped.answers) {
     delete answer.isCorrect;
   }
