@@ -21,11 +21,12 @@ export const quizQuestionPublicReturn = question => {
 export const quizQuestionGetCorrectAnswers = question => {
   console.log('quizQuestionGetCorrectAnswers: ', question);
   // We assume isCorrect adheres to single/multi already
-  const corrects = question.reduce((total, item, index) => {
+  const corrects = question.answers.reduce((total, item, index) => {
     if (item.isCorrect) {
       total.push(index);
     }
-  });
+    return total;
+  }, []);
   console.log('quizQuestionGetCorrectAnswers corrects ', corrects);
   return corrects;
 };
