@@ -4,8 +4,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/system';
 
-const getColors = (index, disabled) => {
-  if (disabled) {
+const getColors = (index, correct, wrong, disabled) => {
+  if (disabled && !(correct && wrong)) {
     return {
       backgroundColor: '#AAA',
     }
@@ -91,17 +91,18 @@ const getShape = (index, correct, wrong) => {
 
 function AnswerBox ({ index, answer, correct, wrong, disabled, onClick }) {
   const StyledBox = styled(Box)(() => {
-    const colors = getColors(index, disabled);
+    const colors = getColors(index, correct, wrong, disabled);
     return {
       width: '100%',
       height: '100%',
       padding: '5px',
       borderRadius: '5px',
-      cursor: 'pointer',
+      cursor: disabled ? 'auto' : 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      ...colors,
+      backgroundColor: colors.backgroundColor,
+      ...(disabled ? { } : { '&:hover': colors['&:hover'] }),
     };
   });
 

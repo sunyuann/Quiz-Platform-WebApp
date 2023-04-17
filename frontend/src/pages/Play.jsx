@@ -60,7 +60,11 @@ function Play () {
       console.log('newAnswers ', newAnswers);
       setAnswers(newAnswers);
       setQuestion(data.question);
-      setCount(data.question.timeLimit);
+      const startTime = new Date(data.question.isoTimeLastQuestionStarted);
+      const endTime = new Date(startTime.getTime() + data.question.timeLimit * 1000);
+      const timeNow = new Date();
+      const diff = Math.floor((endTime - timeNow) / 1000);
+      setCount(diff - 1);
     }
     if (playerID && started) {
       doAsync();
@@ -73,15 +77,46 @@ function Play () {
       const updateCount = () => {
         const newCount = count - 1;
         console.log('count ', newCount, ' bool ', newCount < 1);
-        if (newCount < 0) {
+        if (newCount === 0) {
+          setDisabled(new Array(answers.length).fill(true));
+        }
+        if (newCount === -1) {
           showAnswers();
-        } else {
+          checkForNewQuestion();
+        }
+        if (newCount >= -1) {
           setCount(() => { return newCount; })
         }
       }
       setTimeout(updateCount, 1000);
     }
   }, [count]);
+
+  const checkForNewQuestion = async () => {
+    const data = await apiCall(`play/${playerID}/question`, 'GET');
+    console.log('checkQuestion GET ', data);
+    if (data.error === 'Session ID is not an active session') {
+      // End of quiz reached
+      console.log('TODO END OF QUIZ');
+      return;
+    }
+    if (question.isoTimeLastQuestionStarted === data.question.isoTimeLastQuestionStarted) {
+      setTimeout(checkForNewQuestion, 1000);
+      return;
+    }
+    // New question baby!
+    const newAnswers = [];
+    for (const answer of data.question.answers) {
+      newAnswers.push(answer.content)
+    }
+    console.log('newAnswers ', newAnswers);
+    setAnswers(newAnswers);
+    setQuestion(data.question);
+    setAnswersChecked([]);
+    setDisabled([]);
+    setWrongs([]);
+    setCount(data.question.timeLimit);
+  }
 
   // When countdown === 0, get and show answers
   const showAnswers = async () => {
@@ -90,21 +125,15 @@ function Play () {
     const newDisabled = new Array(answers.length).fill(true);
     const newCorrects = new Array(answers.length).fill(false);
     for (const id of data.answerIds) {
+      // Green shape for correct answers
       newCorrects[id] = true;
-      newDisabled[id] = false;
     }
-    // Don't disable answers related to player selected or correct answers
-    for (const idx in answersChecked) {
-      if (answersChecked[idx]) {
-        newDisabled[idx] = false;
-      }
-    }
-    setWrongs(answersChecked);
     // Set player selected answers as wrong
-    setAnswersChecked(newCorrects);
+    setWrongs(answersChecked);
     // Set correct answers as right, will override wrongs
+    setAnswersChecked(newCorrects);
+    // Disable answers
     setDisabled(newDisabled);
-    // Disable other answers
   }
 
   // Handles player clicking an AnswerBox
@@ -117,6 +146,10 @@ function Play () {
         newChecked = [...answersChecked];
       }
       newChecked[index] = !newChecked[index];
+      // For multiChoice, don't unselect the last one
+      if (newChecked.every(elem => elem === false)) {
+        newChecked = [...answersChecked];
+      }
       setAnswersChecked(newChecked);
       const answerIds = newChecked.reduce((total, item, index) => {
         if (item) {
@@ -166,7 +199,7 @@ function Play () {
                 media={question.mediaAttachment}
               />
               <div>
-                Seconds left: {count}
+                Seconds left: {count >= 0 ? count : 0}
               </div>
               <div>
                 <AnswerBoxes
