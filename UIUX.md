@@ -5,3 +5,4 @@
 * Question edit error messages close with relevant user interaction.
 * Answer boxes are similar to Kahoot's.
 * Trying to go to Login or Register page while already logged in will redirect to the Dashboard.
+* Import Json gives reason for failure.
