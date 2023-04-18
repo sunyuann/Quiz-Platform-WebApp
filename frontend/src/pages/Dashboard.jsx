@@ -5,6 +5,9 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import GameCard from '../components/GameCard';
 import GamePopup from '../components/GamePopup';
+import Typography from '@mui/material/Typography';
+import InputLabel from '@mui/material/InputLabel';
+import TextField from '@mui/material/TextField';
 
 function Dashboard () {
   const [newGameShow, setNewGameShow] = React.useState(false);
@@ -134,17 +137,32 @@ function Dashboard () {
   // TODO: break into more compoennts
   return (
     <>
-      <div>Dashboard!</div>
+      <Typography variant="h3" gutterBottom>
+        Dashboard
+      </Typography>
       <div>
-        <button onClick={() => setNewGameShow(!newGameShow)}>
-          {newGameShow ? 'Hide' : 'Show'} Create New Game
-        </button>
+        <Button variant="contained" size="large" onClick={() => setNewGameShow(!newGameShow)}>
+          {newGameShow ? 'Hide' : 'Click here to'} Create New Game
+        </Button>
+        <hr />
         {newGameShow && (
           <>
-            <br />
-            Form here for new game!<br />
-            Name: <input name='new-quiz-name' value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
-            <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
+            <Typography sx={{ marginLeft: '5px', marginTop: '3px' }} variant="h6" gutterBottom>
+                Create new game here
+              </Typography>
+            <div style={{ marginLeft: '10px', marginTop: '5px' }}>
+              <InputLabel>Game Name</InputLabel>
+              <TextField
+                value={newQuizName}
+                onChange={(e) => setNewQuizName(e.target.value)}
+                placeholder='Enter game name here'
+                sx={{ marginBottom: '10px', width: '25ch' }}
+              />
+              <div>
+                <Button sx={{ paddingTop: '10px', paddingBottom: '10px', marginBottom: '20px' }} variant="contained" size='large' onClick={createNewGame}>Create new game</Button>
+              </div>
+            </div>
+            <hr />
           </>
         )}
         { newQuizError && (
@@ -154,7 +172,9 @@ function Dashboard () {
         )}
       </div>
       <div>
-        List of games:<br />
+      <Typography variant="h5" gutterBottom>
+        List of games
+      </Typography>
         {quizzes.map(quiz => (
           <div key={quiz.id}>
             <GameCard

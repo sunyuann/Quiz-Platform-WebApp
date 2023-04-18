@@ -8,6 +8,7 @@ import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import TableTwoCol from '../components/TableTwoCol';
 import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
 
 function Play () {
   const params = useParams();
@@ -232,31 +233,23 @@ function Play () {
         : (<>
           { /* Join Session Screen */ }
           <div>
+            <InputLabel sx={{ marginTop: '10px' }}>Game Session ID</InputLabel>
             <TextField
-              fullWidth
-              label="Session ID"
-              placeholder="Enter the Game's Session ID Here"
-              InputLabelProps={{
-                shrink: true,
-              }}
               value={sessionID}
               onChange={handleSessionIDState}
+              placeholder="Enter the Game's Session ID here"
+              sx={{ marginBottom: '10px', width: '40ch' }}
             />
-          </div>
-          <div>
+            <InputLabel>Your Name</InputLabel>
             <TextField
-              fullWidth
-              label="Your Name"
-              placeholder="Enter your name here"
-              InputLabelProps={{
-                shrink: true,
-              }}
               value={name}
               onChange={handleNameState}
+              placeholder="Enter your name here"
+              sx={{ marginBottom: '10px', width: '40ch' }}
             />
           </div>
           <div>
-            <Button onClick={handleSessionJoin} >Play!</Button>
+            <Button variant="contained" size='large' onClick={handleSessionJoin} >Play!</Button>
           </div>
         </>)
 

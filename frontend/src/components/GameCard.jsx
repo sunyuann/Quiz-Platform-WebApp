@@ -4,6 +4,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
 
 function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, handleControl }) {
   let quizTime = 0;
@@ -16,7 +17,7 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, ha
         <CardMedia
           component="div"
           sx={{
-            height: 140,
+            height: 160,
             backgroundSize: 'contain',
             backgroundColor: 'gray',
           }}
@@ -31,25 +32,31 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, ha
         />
         <CardContent>
           <div>
-            <b>{quiz.name}</b>
+            <Typography variant="h6" gutterBottom>
+              <b>Quiz Name: {quiz.name}</b>
+            </Typography>
           </div>
           <div>
-            Number of questions: {quiz.questions.length}
+            <Typography variant="body1" gutterBottom>
+              Number of questions: {quiz.questions.length}
+            </Typography>
           </div>
           <div>
-            Total time to complete game: {quizTime}
+            <Typography variant="body1" gutterBottom>
+              Total time to complete game: {quizTime} seconds
+            </Typography>
           </div>
         </CardContent>
         <CardActions>
           {quiz.active
             ? (<>
-                <Button size="small" onClick={() => { handleStop(quiz.id, quiz.active) }}>Stop</Button>
-                <Button size="small" onClick={() => { handleControl(quiz.id, quiz.active) }}>Control Panel</Button>
+                <Button variant="contained" onClick={() => { handleStop(quiz.id, quiz.active) }}>Stop</Button>
+                <Button variant="contained" onClick={() => { handleControl(quiz.id, quiz.active) }}>Control Panel</Button>
               </>)
             : (<>
-                <Button size="small" onClick={() => { handleStart(quiz.id) }}>Start</Button>
-                <Button size="small" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
-                <Button size="small" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
+                <Button variant="contained" onClick={() => { handleStart(quiz.id) }}>Start</Button>
+                <Button variant="contained" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
+                <Button variant="contained" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
               </>)
           }
         </CardActions>

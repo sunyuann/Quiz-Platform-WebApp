@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '@mui/material/Button';
 
 function BackButton () {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ function BackButton () {
 
   return (
     <>
-      <button onClick={handleBack}>Back</button>
+      <Button variant="contained" onClick={handleBack} >Back</Button>
     </>
   )
 }
