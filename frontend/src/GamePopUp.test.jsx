@@ -6,7 +6,6 @@ import GamePopup from './components/GamePopup';
 describe('Test GamePopup component', () => {
   it('GamePopup exists', () => {
     render(<GamePopup title='testTitle' description='testDescription' yesText='testYesText' />);
-    screen.logTestingPlaygroundURL();
     expect(screen.getByRole('heading', { name: /testtitle/i })).toBeInTheDocument();
     expect(screen.getByText(/testdescription/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /testyestext/i })).toBeInTheDocument();
