@@ -26,9 +26,9 @@ function QuizEdit () {
       setQuizError(data.error);
       return;
     }
-    setName(data.name)
+    setName(data.name);
     setThumb(data.thumbnail);
-    setQuiz(data)
+    setQuiz(data);
   }, []);
 
   // Handle name state

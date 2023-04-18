@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { apiCall } from '../helpers';
 import AnswerBoxes from '../components/AnswerBoxes';
 import BackButton from '../components/BackButton'
+import CatPics from '../components/CatPics';
 import MediaDisplay from '../components/MediaDisplay';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
@@ -229,6 +230,7 @@ function Play () {
               <div>
                 We are in!
               </div>
+              <CatPics />
             </>)
         : (<>
           { /* Join Session Screen */ }

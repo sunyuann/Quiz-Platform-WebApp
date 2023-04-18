@@ -1,4 +1,5 @@
 * Dashboard Quiz controls change based on whether a session is active.
+* Popups after Starting/Stopping a Quiz on the Dashboard autofocus on a button and have a black outline to show that they are in focus.
 * Updating Quiz name and image gives feedback when button is pressed.
 * Saving changes to a Quiz Question gives feedback when buttin is pressed.
 * Question edit error messages close with relevant user interaction.
