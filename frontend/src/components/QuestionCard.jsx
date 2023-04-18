@@ -2,18 +2,18 @@ import React from 'react';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
 
 function QuestionCard ({ index, handleEdit, handleDelete }) {
   return (
     <>
-      <Card sx={{ maxWidth: 500 }}>
-        <CardContent>
+      <Card sx={{ maxWidth: '500' }} variant="outlined">
+        <Typography variant="body1" sx={{ margin: '20px 0px 0px 20px' }}>
           Question {index + 1}
-        </CardContent>
+        </Typography>
         <CardActions>
-          <Button size="small" onClick={() => { handleEdit(index) }}>Edit</Button>
-          <Button size="small" onClick={() => { handleDelete(index) }}>Delete</Button>
+          <Button onClick={() => { handleEdit(index) }}>Edit</Button>
+          <Button onClick={() => { handleDelete(index) }}>Delete</Button>
         </CardActions>
       </Card>
     </>
