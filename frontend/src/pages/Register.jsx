@@ -29,9 +29,9 @@ function Register () {
   }
   return (
     <>
-        Email: <input value={email} onChange={(e) => setEmail(e.target.value)}/><br />
-        Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/><br />
-        Name: <input value={name} onChange={(e) => setName(e.target.value)}/><br />
+        Email: <input name='email' value={email} onChange={(e) => setEmail(e.target.value)}/><br />
+        Password: <input name='password' value={password} onChange={(e) => setPassword(e.target.value)}/><br />
+        Name: <input name='name' value={name} onChange={(e) => setName(e.target.value)}/><br />
         <button onClick={fetchRegister}>Sign Up</button>
         { error && (
           <Alert severity="error" onClose={() => setError('')}>

@@ -342,6 +342,7 @@ function QuestionEdit () {
             <div key={index}>
               <Input
                 value={answer.content}
+                placeholder='Enter an answer here'
                 onChange={e => handleAnswerContent(e, index)}
                 startAdornment={
                   <InputAdornment position="start">

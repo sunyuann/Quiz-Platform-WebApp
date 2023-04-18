@@ -29,8 +29,8 @@ function Login () {
 
   return (
     <>
-        Email: <input value={email} onChange={(e) => setEmail(e.target.value)}/><br />
-        Password: <input value={password} onChange={(e) => setPassword(e.target.value)}/><br />
+        Email: <input name='email' value={email} onChange={(e) => setEmail(e.target.value)}/><br />
+        Password: <input name='password' value={password} onChange={(e) => setPassword(e.target.value)}/><br />
         <button onClick={fetchLogin}>Sign In</button>
         { error && (
           <Alert severity="error" onClose={() => setError('')}>
