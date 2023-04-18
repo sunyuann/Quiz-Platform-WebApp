@@ -18,6 +18,7 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Typography from '@mui/material/Typography';
 
 function QuestionEdit () {
   const params = useParams();
@@ -53,11 +54,10 @@ function QuestionEdit () {
     setQuestion(questionInfo.question);
     setAnswers(questionInfo.answers);
   }, []);
-
   // render image on page load and on file input
   React.useEffect(() => {
     if (mediaAttachment === 'none') {
-      setMediaAttachmentDisplay(<>There is currently no image or video attached to this question.</>);
+      setMediaAttachmentDisplay(<Typography variant="body1">There is currently no image or video attached to this question.</Typography>);
     } else {
       setMediaAttachmentDisplay(
         <MediaDisplay
@@ -229,10 +229,13 @@ function QuestionEdit () {
 
   return (
     <>
-      <BackButton />
-      <h1>Quiz: {quizName}</h1>
-      <h2>Question {params.questionId}</h2>
-      {/* TODO: next question and previous question edit button? */}
+      <BackButton/>
+      <br />
+      <Typography variant="h3">
+        {quizName} Quiz Question {params.questionId}
+      </Typography>
+      <br />
+      <br />
       <div>
         <FormControl>
         <FormLabel id="question-edit-type-label">Question Type</FormLabel>
@@ -278,10 +281,11 @@ function QuestionEdit () {
         </div>
       </Box>
       {mediaAttachmentDisplay}
-      <div style={{ marginBottom: '10px', marginTop: '10px' }}>
+      <div style={{ marginBottom: '15px', marginTop: '10px' }}>
         <Button
           variant="contained"
           component="label"
+          size="large"
         >
           Upload Image
           <input
@@ -301,6 +305,7 @@ function QuestionEdit () {
           }}
           value={mediaAttachmentUploadURL}
           onChange={handleMediaAttachmentUploadURLState}
+          sx={{ width: '35ch' }}
         />
         <Button
           variant="contained"
@@ -314,7 +319,7 @@ function QuestionEdit () {
       <Button
         variant="contained"
         size="large"
-        style={{ marginTop: '5px' }}
+        style={{ marginTop: '10px' }}
         onClick={deleteMediaAttachmentState}
       >
         Remove Image or Video
@@ -326,13 +331,14 @@ function QuestionEdit () {
         </Alert>
       )}
       <br /><br />
-      <TextField fullWidth sx={{ m: 0.2 }}
+      <TextField
         label="Question"
         placeholder="Enter question here"
         InputLabelProps={{
           shrink: true,
         }}
         value={question}
+        sx={{ width: '54ch' }}
         onChange={handleQuestionState}
       />
 
@@ -342,6 +348,7 @@ function QuestionEdit () {
             <div key={index}>
               <Input
                 value={answer.content}
+                placeholder='Enter an answer here'
                 onChange={e => handleAnswerContent(e, index)}
                 startAdornment={
                   <InputAdornment position="start">
@@ -375,7 +382,7 @@ function QuestionEdit () {
         </Alert>
       )}
 
-    <Button variant="contained" onClick={handleSubmit}>Save changes</Button>
+    <Button variant="contained" size="large" sx={{ marginTop: '15px' }} onClick={handleSubmit}>Save changes</Button>
     </>
   )
 }

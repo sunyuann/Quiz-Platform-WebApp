@@ -1,22 +1,99 @@
 import React from 'react';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import { apiCall } from '../helpers';
 
-function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, handleControl }) {
+function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, handleStop, handleControl }) {
+  const [jsonAlert, setJsonAlert] = React.useState(null);
   let quizTime = 0;
   for (const question of quiz.questions) {
     quizTime += Number(question.timeLimit);
   }
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result);
+      const pruned = { name: data.name, questions: data.questions, thumbnail: data.thumbnail }
+      const bad = validateData(pruned);
+      if (!bad) {
+        const response = apiCall(`admin/quiz/${quiz.id}`, 'PUT', pruned);
+        if (response.error) {
+          setJsonAlert({ severity: 'error', text: 'Error updating Quiz' });
+        } else {
+          handleJson();
+          setJsonAlert({ severity: 'success', text: 'Quiz was updated!' });
+        }
+      } else {
+        setJsonAlert({ severity: 'error', text: `JSON was not valid: ${bad}` });
+      }
+    };
+    event.target.value = null;
+  };
+
+  // Returns '' if good, otherwise reason why not good
+  const validateData = (data) => {
+    if (typeof data.name !== 'string') {
+      return 'name was not a string';
+    }
+    if (!data.thumbnail && !data.thumbnail.includes('data:image')) {
+      return 'thumbnail is not a data:image';
+    }
+    for (const question of data.questions) {
+      if (!['singleChoice', 'multipleChoice'].includes(question.questionType)) {
+        return 'questionType is wrong';
+      }
+      if (typeof question.timeLimit !== 'number' || typeof question.points !== 'number') {
+        return 'time limit or points is not a number';
+      }
+      if (typeof question.question !== 'string') {
+        return 'question is not a string';
+      }
+      if (typeof question.mediaAttachmentType === 'string' && typeof question.mediaAttachment !== 'string') {
+        return 'mediaAttachment was not a string';
+      }
+      if (typeof question.mediaAttachmentType !== 'string' && typeof question.mediaAttachment === 'string') {
+        return 'mediaAttachmentType was not a string';
+      }
+      if (question.mediaAttachmentType === 'none' && question.mediaAttachment !== 'none') {
+        return 'mediaAttachmentType was "none", but mediaAttachement was not "none"';
+      }
+      if (question.mediaAttachmentType !== 'none' && question.mediaAttachment === 'none') {
+        return 'mediaAttachmentType was not "none", but mediaAttachement was "none"';
+      }
+      if (question.mediaAttachmentType === 'url' && !question.mediaAttachment.includes('youtube')) {
+        return 'mediaAttachmentType was "url", but mediaAttachment was not a youtube video';
+      }
+      if (question.mediaAttachmentType === 'image' && !question.mediaAttachment.includes('data:image')) {
+        return 'mediaAttachmentType was "image", but mediaAttachment was not a data:image';
+      }
+      if (!question.answers || question.answers.length < 2 || question.answers.length > 6) return false;
+      for (const answer of question.answers) {
+        if (typeof answer.content !== 'string') {
+          return 'answer.content was not a string';
+        }
+        if (typeof answer.isCorrect !== 'boolean') {
+          return 'answer.isCorrect was not a boolean';
+        }
+      }
+    }
+    return '';
+  };
+
   return (
     <>
       <Card sx={{ maxWidth: '500px', margin: '5px 5px 5px 0px' }}>
         <CardMedia
           component="div"
           sx={{
-            height: 140,
+            height: 160,
             backgroundSize: 'contain',
             backgroundColor: 'gray',
           }}
@@ -31,29 +108,54 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, ha
         />
         <CardContent>
           <div>
-            <b>{quiz.name}</b>
+            <Typography variant="h6" gutterBottom>
+              <b>Quiz Name: {quiz.name}</b>
+            </Typography>
           </div>
           <div>
-            Number of questions: {quiz.questions.length}
+            <Typography variant="body1" gutterBottom>
+              Number of questions: {quiz.questions.length}
+            </Typography>
           </div>
           <div>
-            Total time to complete game: {quizTime}
+            <Typography variant="body1" gutterBottom>
+              Total time to complete game: {quizTime} seconds
+            </Typography>
           </div>
         </CardContent>
         <CardActions>
           {quiz.active
             ? (<>
-                <Button size="small" onClick={() => { handleStop(quiz.id, quiz.active) }}>Stop</Button>
-                <Button size="small" onClick={() => { handleControl(quiz.id, quiz.active) }}>Control Panel</Button>
+                <Button variant="contained" onClick={() => { handleStop(quiz.id, quiz.active) }}>Stop</Button>
+                <Button variant="contained" onClick={() => { handleControl(quiz.id, quiz.active) }}>Control Panel</Button>
               </>)
             : (<>
-                <Button size="small" onClick={() => { handleStart(quiz.id) }}>Start</Button>
-                <Button size="small" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
-                <Button size="small" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
+                <Button variant="contained" onClick={() => { handleStart(quiz.id) }}>Start</Button>
+                <Button variant="contained" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
+                &nbsp;
+                <Button
+                  variant="contained"
+                  component="label"
+                >
+                  Import JSON
+                  <input
+                    hidden
+                    accept=".json"
+                    type="file"
+                    placeholder='Upload JSON'
+                    onChange={(event) => handleFileChange(event)}
+                  />
+                </Button>
+                <Button variant="contained" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
               </>)
           }
         </CardActions>
       </Card>
+      { jsonAlert && (
+            <Alert severity={jsonAlert.severity} onClose={() => setJsonAlert(null)}>
+              {jsonAlert.text}
+            </Alert>
+      )}
     </>
   )
 }

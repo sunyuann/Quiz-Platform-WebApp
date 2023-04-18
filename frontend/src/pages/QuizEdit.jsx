@@ -4,6 +4,10 @@ import { apiCall, fileToDataUrl } from '../helpers';
 import BackButton from '../components/BackButton'
 import Alert from '@mui/material/Alert';
 import QuestionCard from '../components/QuestionCard';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import InputLabel from '@mui/material/InputLabel';
 
 function QuizEdit () {
   const navigate = useNavigate();
@@ -22,9 +26,9 @@ function QuizEdit () {
       setQuizError(data.error);
       return;
     }
-    setName(data.name)
+    setName(data.name);
     setThumb(data.thumbnail);
-    setQuiz(data)
+    setQuiz(data);
   }, []);
 
   // Handle name state
@@ -118,9 +122,28 @@ function QuizEdit () {
       <BackButton />
       { quiz && (
         <>
-          <div>
-          <input type="text" onChange={handleNameState} value={name}/>
-          <button onClick={handleUpdateName}>Update Name</button>
+          <Typography variant="h3">
+            Quiz Edit Form
+          </Typography>
+          <br />
+          <div style={{ paddingBottom: '15px' }}>
+            <InputLabel>Name</InputLabel>
+            <TextField
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={name}
+              onChange={handleNameState}
+              sx={{ width: '35ch' }}
+            />
+            <Button
+              variant="contained"
+              size="large"
+              style={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
+              onClick={handleUpdateName}
+            >
+              Update Name
+            </Button>
           </div>
           { nameAlert && (
             <Alert severity={nameAlert.severity} onClose={() => setNameAlert(null)}>
@@ -128,28 +151,53 @@ function QuizEdit () {
             </Alert>
           )}
           <div>
-          <img src={thumb} alt={'Thumbnail of quiz ' + quiz.name} />
-          <input
-            type="file"
-            accept="image/*"
-            placeholder="Upload image"
-            onChange={handleThumbState}
-          />
-          <button onClick={handleUpdateThumb}>Update Thumbnail</button>
+            <InputLabel>Thumbnail</InputLabel>
+            <img src={thumb} style={{ maxWidth: '55ch', maxHeight: '55ch', height: 'auto' }} alt={'Thumbnail of quiz ' + quiz.name} />
           </div>
-          { thumbAlert && (
+          <div>
+            <div style={{ marginBottom: '15px', marginTop: '10px' }}>
+              <Button
+                variant="contained"
+                component="label"
+                size="large"
+                style={{ marginRight: '3px', width: '26ch' }}
+              >
+                Upload Image
+                <input
+                  hidden
+                  accept="image/*"
+                  multiple type="file"
+                  placeholder='Upload image'
+                  onChange={handleThumbState}
+                />
+              </Button>
+              <Button
+                variant="contained"
+                size="large"
+                style={{ marginLeft: '3px', width: '26ch' }}
+                onClick={handleUpdateThumb}
+              >
+                Update Thumbnail
+              </Button>
+            </div>
+            { thumbAlert && (
             <Alert severity={thumbAlert.severity} onClose={() => setNameAlert(null)}>
               {thumbAlert.text}
             </Alert>
-          )}
-          Questions:
-          <button onClick={handleAddQuestion}>Add new question</button>
-          <div>
-          {quiz.questions.map((question, index) => (
-            <div key={index + 1}>
-              <QuestionCard index={index} handleEdit={handleQuestionEdit} handleDelete={handleQuestionDelete} />
+            )}
+          </div>
+          <div style={{ marginTop: '15px' }}>
+            <Typography variant="h5">
+              Questions
+            </Typography>
+            <div style={{ marginTop: '5px', marginLeft: '2px' }}>
+              {quiz.questions.map((question, index) => (
+                <div key={index + 1}>
+                  <QuestionCard index={index} handleEdit={handleQuestionEdit} handleDelete={handleQuestionDelete} />
+                </div>
+              ))}
+              <Button variant="contained" size="large" style={{ marginTop: '6px', marginBottom: '15px' }} onClick={handleAddQuestion}>Add new question</Button>
             </div>
-          ))}
           </div>
         </>
       )}

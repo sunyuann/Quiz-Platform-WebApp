@@ -7,6 +7,7 @@ import ColumnChart from '../components/ColumnChart';
 import TableTwoCol from '../components/TableTwoCol';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 // status.position === -1 means Lobby time.
 // status.position === 0 means question 1.
@@ -30,7 +31,6 @@ function QuizControl () {
   // When status changes, update answers
   // When status.active is false, get results
   React.useEffect(async () => {
-    console.log('status ', status);
     if (status.active && status.position !== -1) {
       setAnswers(status.questions[status.position].answers.map((item) => item.content));
     }
@@ -104,10 +104,15 @@ function QuizControl () {
     setResults(data.results);
   }
 
-  // For a player from results, get their total points using status.questions
+  // For a player from results, get their total points using status.questions (formula = question points * time remaining (in seconds))
   const getPlayerPoints = (player, questions) => {
     return player.answers.reduce((total, answer, idx) => {
-      return total + (answer.correct ? questions[idx].points : 0);
+      console.log(questions)
+      const timeDiff =
+        new Date(answer.answeredAt) - new Date(answer.questionStartedAt);
+      const timeRemaining =
+        questions[idx].timeLimit - (timeDiff / 1000);
+      return total + (answer.correct ? Math.round(questions[idx].points * timeRemaining * 100) / 100 : 0);
     }, 0);
   }
 
@@ -141,16 +146,19 @@ function QuizControl () {
   return (
     <>
       <BackButton />
-      <div>
+      <Typography variant="h6">
         {'Current stage: ' + getCurrentStage()}
-      </div>
-      <div>
+      </Typography>
+      <Typography variant="h6">
         {'Players: ' + (status.players && status.players.length ? status.players.join(', ') : 'None.')}
-      </div>
+      </Typography>
       <div>
         <Button
           onClick={handleNextQuestion}
           disabled={!status.active}
+          variant="contained"
+          sx={{ marginRight: '5px' }}
+          size="large"
         >
           { status.position === -1
             ? 'Start Quiz'
@@ -160,6 +168,8 @@ function QuizControl () {
         <Button
           onClick={handleStopGame}
           disabled={!status.active}
+          variant="contained"
+          size="large"
         >
           Stop Game
         </Button>
@@ -178,9 +188,14 @@ function QuizControl () {
           <AnswerBoxes height="500px" answers={answers} handleClick={() => {}} />
           </>
       }
+      <Typography variant="body1" sx={{ marginTop: '40px' }}>
+        NOTE: The scoring system is the product of speed taken to complete a question and the number of points a question is worth. (i.e. Time remaining multiplied by Question Points)
+      </Typography>
       { topPlayers &&
         (<>
-          <h2>Top 5 Players</h2>
+          <Typography variant="h4" sx={{ marginTop: '25px' }}>
+            Top 5 Players
+          </Typography>
           <TableTwoCol
             col1Head='Players'
             col2Head='Points'
