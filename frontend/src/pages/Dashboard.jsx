@@ -143,7 +143,7 @@ function Dashboard () {
           <>
             <br />
             Form here for new game!<br />
-            Name: <input value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
+            Name: <input name='new-quiz-name' value={newQuizName} onChange={(e) => setNewQuizName(e.target.value)}/><br />
             <Button sx={{ paddingTop: '10px', paddingBottom: '10px' }} variant="contained" onClick={createNewGame}>Create new game</Button>
           </>
         )}
