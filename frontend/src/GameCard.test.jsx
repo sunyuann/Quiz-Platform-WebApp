@@ -12,9 +12,10 @@ describe('Test GameCard component', () => {
       thumbnail: 'why',
     }
     render(<GameCard quiz={quiz} />);
-    expect(screen.getAllByRole('button').length).toBe(3);
+    expect(screen.getAllByRole('button').length).toBe(4);
     expect(screen.getByText(/start/i)).toBeInTheDocument();
     expect(screen.getByText(/edit/i)).toBeInTheDocument();
+    expect(screen.getByText(/import json/i)).toBeInTheDocument();
     expect(screen.getByText(/delete/i)).toBeInTheDocument();
     expect(screen.queryByText(/Stop/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Control Panel/i)).not.toBeInTheDocument();
@@ -31,6 +32,7 @@ describe('Test GameCard component', () => {
     expect(screen.getAllByRole('button').length).toBe(2);
     expect(screen.queryByText(/start/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/edit/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/import json/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/delete/i)).not.toBeInTheDocument();
     expect(screen.getByText(/Stop/i)).toBeInTheDocument();
     expect(screen.getByText(/Control Panel/i)).toBeInTheDocument();

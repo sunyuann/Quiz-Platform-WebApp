@@ -1,0 +1,88 @@
+{
+    "name": "2.5 Upload Quiz",
+    "questions": [
+        {
+            "questionType": "singleChoice",
+            "timeLimit": 10,
+            "points": 10,
+            "mediaAttachment": "https://www.youtube.com/embed/Ek-6UNAEtvY?autoplay=0",
+            "mediaAttachmentType": "url",
+            "question": "Sample question: What color is an apple?",
+            "answers": [
+                {
+                    "content": "Blue",
+                    "isCorrect": false
+                },
+                {
+                    "content": "Red",
+                    "isCorrect": true
+                },
+                {
+                    "content": "Black",
+                    "isCorrect": false
+                },
+                {
+                    "content": "Circle",
+                    "isCorrect": false
+                },
+                {
+                    "content": "4",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "questionType": "multipleChoice",
+            "timeLimit": 20,
+            "points": 10,
+            "mediaAttachment": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",
+            "mediaAttachmentType": "image",
+            "question": "What color is an apple? Multiple answers.",
+            "answers": [
+                {
+                    "content": "Red",
+                    "isCorrect": true
+                },
+                {
+                    "content": "Blue",
+                    "isCorrect": false
+                },
+                {
+                    "content": "Black",
+                    "isCorrect": false
+                },
+                {
+                    "content": "Green",
+                    "isCorrect": true
+                },
+                {
+                    "content": "I am color blind",
+                    "isCorrect": false
+                },
+                {
+                    "content": "4",
+                    "isCorrect": false
+                }
+            ]
+        },
+        {
+            "questionType": "singleChoice",
+            "timeLimit": 5,
+            "points": 50,
+            "mediaAttachment": "none",
+            "mediaAttachmentType": "none",
+            "question": "Choose the red one :)",
+            "answers": [
+                {
+                    "content": "Blue",
+                    "isCorrect": false
+                },
+                {
+                    "content": "Red",
+                    "isCorrect": true
+                }
+            ]
+        }
+    ],
+    "thumbnail": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+}
