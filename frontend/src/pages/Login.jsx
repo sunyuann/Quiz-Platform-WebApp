@@ -5,11 +5,17 @@ import { apiCall } from '../helpers';
 import Alert from '@mui/material/Alert';
 
 function Login () {
-  const { setters } = useContext(Context);
+  const { getters, setters } = useContext(Context);
   const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
+
+  React.useEffect(() => {
+    if (getters.token) {
+      navigate('/dashboard')
+    }
+  })
 
   async function fetchLogin () {
     const data = await apiCall('admin/auth/login', 'POST', { email, password });
