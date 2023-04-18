@@ -4,7 +4,12 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/system';
 
-const getColors = (index) => {
+const getColors = (index, correct, wrong, disabled) => {
+  if (disabled && !(correct && wrong)) {
+    return {
+      backgroundColor: '#AAA',
+    }
+  }
   switch (index) {
     case 0:
       return {
@@ -51,7 +56,7 @@ const getColors = (index) => {
   }
 }
 
-const getShape = (index) => {
+const getShape = (index, correct, wrong) => {
   let d = 'M27,24.559972 L5,24.559972 L16,7 L27,24.559972 Z';
   switch (index) {
     case 0:
@@ -73,31 +78,38 @@ const getShape = (index) => {
       d = 'M5 8L16 26.857 27 8z'
       break;
   }
-  return (<svg width="32" height = "32" viewBox="0 0 32 32" focusable="false" aria-hidden="true">
-            <path d={d} fill="white"></path>
+  let fill = 'white';
+  if (wrong) fill = '#f00' // Bright Red
+  if (correct) fill = '#45f542'; // Fluro Green
+  return (<svg width="64" height = "64" viewBox="0 0 32 32"
+            stroke='black'
+            strokeWidth='2'
+            focusable="false" aria-hidden="true">
+            <path d={d} fill={fill}></path>
           </svg>);
 }
 
-function AnswerBox ({ index, answer, onClick }) {
+function AnswerBox ({ index, answer, correct, wrong, disabled, onClick }) {
   const StyledBox = styled(Box)(() => {
-    const colors = getColors(index);
+    const colors = getColors(index, correct, wrong, disabled);
     return {
       width: '100%',
       height: '100%',
       padding: '5px',
       borderRadius: '5px',
-      cursor: 'pointer',
+      cursor: disabled ? 'auto' : 'pointer',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      ...colors,
+      backgroundColor: colors.backgroundColor,
+      ...(disabled ? { } : { '&:hover': colors['&:hover'] }),
     };
   });
 
   return (
     <>
-      <StyledBox onClick={onClick}>
-        {getShape(index)}
+      <StyledBox onClick={disabled ? () => {} : onClick}>
+        {getShape(index, correct, wrong)}
         <Typography variant="h6" color="white">
           {answer}
         </Typography>

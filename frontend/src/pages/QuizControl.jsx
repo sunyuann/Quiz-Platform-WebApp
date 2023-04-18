@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { apiCall } from '../helpers';
 import AnswerBoxes from '../components/AnswerBoxes';
 import BackButton from '../components/BackButton';
+import ColumnChart from '../components/ColumnChart';
+import TableTwoCol from '../components/TableTwoCol';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 
@@ -12,10 +14,13 @@ import Button from '@mui/material/Button';
 
 function QuizControl () {
   const params = useParams();
+  const [avgAnswer, setAvgAnswer] = React.useState(null);
   const [controlAlert, setControlAlert] = React.useState('');
+  const [correctData, setCorrectData] = React.useState(null)
   const [answers, setAnswers] = React.useState([]);
-  const [results, setResults] = React.useState([]);
+  const [results, setResults] = React.useState(null);
   const [status, setStatus] = React.useState({ active: true, position: -1 });
+  const [topPlayers, setTopPlayers] = React.useState(null);
 
   // Fetch session status and results on first render
   React.useEffect(() => {
@@ -30,18 +35,51 @@ function QuizControl () {
       setAnswers(status.questions[status.position].answers.map((item) => item.content));
     }
     if (!status.active) {
-      const data = await apiCall(`admin/session/${params.sessionID}/results`, 'GET');
-      if (data.error) {
-        setControlAlert('Failed to get results: ' + data.error);
-        return;
-      }
-      setResults(data);
+      getResults();
     }
   }, [status]);
 
-  // Debug
+  // Do table and charts when we have results
   React.useEffect(() => {
-    console.log('results ', results);
+    if (results) {
+      // Top 5
+      const playerScores = results.map((player) => ({
+        col1: player.name,
+        col2: getPlayerPoints(player, status.questions),
+      }));
+      const sortedPlayerScores = playerScores.sort(
+        (a, b) => b.col2 - a.col2
+      );
+      const topFive = sortedPlayerScores.slice(0, 5);
+      setTopPlayers(topFive);
+      // Correct Percentage
+      const correctCounts = status.questions.map((_, idx) =>
+        results.filter((res) => res.answers[idx].correct).length
+      );
+      const correctPercentages = correctCounts.map(
+        (count) => (count / results.length) * 100
+      );
+      const correctDataPoints = status.questions.map((_, idx) => ({
+        label: `Question ${idx + 1}`,
+        y: correctPercentages[idx],
+      }))
+      setCorrectData(correctDataPoints);
+      // Avg Answer Time
+      const answerTimes = status.questions.map((_, idx) => {
+        const totalAnswerTime = results.reduce((total, res) => {
+          const timeDiff =
+            new Date(res.answers[idx].answeredAt) -
+            new Date(res.answers[idx].questionStartedAt);
+          return total + (timeDiff / 1000);
+        }, 0);
+        return totalAnswerTime / results.length;
+      });
+      const avgAnswerPoints = status.questions.map((_, idx) => ({
+        label: `Question ${idx + 1}`,
+        y: answerTimes[idx],
+      }))
+      setAvgAnswer(avgAnswerPoints);
+    }
   }, [results]);
 
   // Returns string describing position/stage of session
@@ -55,6 +93,22 @@ function QuizControl () {
       default:
         return `Question ${pos + 1}`;
     }
+  }
+
+  const getResults = async () => {
+    const data = await apiCall(`admin/session/${params.sessionID}/results`, 'GET');
+    if (data.error) {
+      setControlAlert('Failed to get results: ' + data.error);
+      return;
+    }
+    setResults(data.results);
+  }
+
+  // For a player from results, get their total points using status.questions
+  const getPlayerPoints = (player, questions) => {
+    return player.answers.reduce((total, answer, idx) => {
+      return total + (answer.correct ? questions[idx].points : 0);
+    }, 0);
   }
 
   const handleNextQuestion = async () => {
@@ -124,11 +178,31 @@ function QuizControl () {
           <AnswerBoxes height="500px" answers={answers} handleClick={() => {}} />
           </>
       }
-      { !status.active &&
-          (<>
-            <div>Component that shows graphs and stuff</div>
-            <div>{JSON.stringify(results)}</div>
-          </>)
+      { topPlayers &&
+        (<>
+          <h2>Top 5 Players</h2>
+          <TableTwoCol
+            col1Head='Players'
+            col2Head='Points'
+            data={topPlayers}
+          />
+        </>)
+      }
+      { correctData &&
+        <ColumnChart
+          title='Percentage of Correct Answers'
+          xTitle='Questions'
+          yTitle='Percentage Correct'
+          data={correctData}
+        />
+      }
+      { avgAnswer &&
+        <ColumnChart
+          title='Average Answer Time'
+          xTitle='Questions'
+          yTitle='Time (s)'
+          data={avgAnswer}
+        />
       }
     </>
   )

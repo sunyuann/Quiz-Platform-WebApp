@@ -5,12 +5,18 @@ import { apiCall } from '../helpers';
 import Alert from '@mui/material/Alert';
 
 function Register () {
-  const { setters } = useContext(Context);
+  const { getters, setters } = useContext(Context);
   const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [name, setName] = React.useState('');
   const [error, setError] = React.useState('');
+
+  React.useEffect(() => {
+    if (getters.token) {
+      navigate('/dashboard')
+    }
+  })
 
   async function fetchRegister () {
     const data = await apiCall('admin/auth/register', 'POST', { email, password, name });
