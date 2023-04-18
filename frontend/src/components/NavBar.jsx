@@ -24,6 +24,7 @@ function NavBar () {
         <>
           {/* Has token */}
           <span><Link to="/dashboard">Dashboard</Link></span>&nbsp;|&nbsp;
+          <span><Link to="/play">Join a game</Link></span> &nbsp;
           <button onClick={logout}>Logout</button>
         </>
           )

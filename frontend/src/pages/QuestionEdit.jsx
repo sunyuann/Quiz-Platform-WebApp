@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { apiCall, fileToDataUrl } from '../helpers';
 import BackButton from '../components/BackButton'
+import MediaDisplay from '../components/MediaDisplay';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -57,25 +58,13 @@ function QuestionEdit () {
   React.useEffect(() => {
     if (mediaAttachment === 'none') {
       setMediaAttachmentDisplay(<>There is currently no image or video attached to this question.</>);
-    } else if (mediaAttachmentType === 'image') {
+    } else {
       setMediaAttachmentDisplay(
-        <img src={mediaAttachment}
-          alt={'Media attachment of Quiz ' + params.id + ' Question ' + params.questionId}
+        <MediaDisplay
+          mediaType={mediaAttachmentType}
+          media={mediaAttachment}
         />
       );
-    } else if (mediaAttachmentType === 'url') {
-      setMediaAttachmentDisplay(
-        <iframe src={mediaAttachment}
-          type="text/html"
-          width="711"
-          height="400"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media;"
-          allowFullScreen
-          title="Youtube video media.">
-        </iframe>
-      )
-    } else {
-      setMediaAttachmentDisplay(<>Error, this should not happen.</>);
     }
   }, [mediaAttachment]);
 

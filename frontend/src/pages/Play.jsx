@@ -1,18 +1,27 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { apiCall } from '../helpers';
+import AnswerBoxes from '../components/AnswerBoxes';
 import BackButton from '../components/BackButton'
+import MediaDisplay from '../components/MediaDisplay';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 
 function Play () {
   const params = useParams();
+  const [answers, setAnswers] = React.useState([]);
+  const [answersChecked, setAnswersChecked] = React.useState([]);
+  const [count, setCount] = React.useState(null);
+  const [disabled, setDisabled] = React.useState([]);
   const [name, setName] = React.useState('');
   const [playAlert, setPlayAlert] = React.useState(null);
   const [playerID, setPlayerID] = React.useState(null);
+  const [question, setQuestion] = React.useState(null);
   const [sessionID, setSessionID] = React.useState(params.sessionID ? params.sessionID : '');
   const [started, setStarted] = React.useState(false);
+  const [results, setResults] = React.useState(null);
+  const [wrongs, setWrongs] = React.useState([]);
 
   // Poll to see if Quiz has started
   React.useEffect(() => {
@@ -24,7 +33,7 @@ function Play () {
           return;
         }
         setStarted(data.started);
-      }, 1000);
+      }, 50);
 
       return () => {
         clearInterval(intervalId);
@@ -32,24 +41,126 @@ function Play () {
     }
   }, [playerID, started]);
 
-  // Debug
-  React.useEffect(async () => {
-    console.log('started ', started)
-    let data = await apiCall(`play/${playerID}/question`, 'GET');
-    console.log('question GET ', data);
-    data = await apiCall(`play/${playerID}/answer`, 'GET');
-    console.log('answer GET ', data);
-    data = await apiCall(`play/${playerID}/results`, 'GET');
-    console.log('results GET ', data);
+  // Get Question info when Quiz has started
+  React.useEffect(() => {
+    const doAsync = async () => {
+      const data = await apiCall(`play/${playerID}/question`, 'GET');
+      const newAnswers = [];
+      for (const answer of data.question.answers) {
+        newAnswers.push(answer.content)
+      }
+      setAnswers(newAnswers);
+      setQuestion(data.question);
+      const startTime = new Date(data.question.isoTimeLastQuestionStarted);
+      const endTime = new Date(startTime.getTime() + data.question.timeLimit * 1000);
+      const timeNow = new Date();
+      const diff = Math.floor((endTime - timeNow) / 1000);
+      setCount(diff);
+    }
+    if (playerID && started) {
+      doAsync();
+    }
   }, [started]);
 
-  const handleClick = async () => {
-    const data = await apiCall(`play/join/${sessionID}`, 'POST', { name });
-    if (data.error) {
-      setPlayAlert('Error joining Session: ' + data.error);
+  // Handles countdown
+  React.useEffect(() => {
+    if (started) {
+      const updateCount = () => {
+        const newCount = count - 1;
+        if (newCount === 0) {
+          setDisabled(new Array(answers.length).fill(true));
+        }
+        if (newCount === -1) {
+          showAnswers();
+          checkForNewQuestion();
+        }
+        if (newCount >= -1) {
+          setCount(() => { return newCount; })
+        }
+      }
+      setTimeout(updateCount, 1000);
+    }
+  }, [count]);
+
+  // Fetch /question and determine what to do
+  const checkForNewQuestion = async () => {
+    const data = await apiCall(`play/${playerID}/question`, 'GET');
+    if (data.error === 'Session ID is not an active session') {
+      // End of quiz reached
+      const dataEnd = await apiCall(`play/${playerID}/results`, 'GET');
+      const text = []
+      for (const idx in dataEnd) {
+        const result = dataEnd[idx];
+        text.push(<div key={idx}>Question { Number(idx) + 1 }: { result.correct ? 'correct' : 'incorrect' }</div>);
+      }
+      setResults(text);
       return;
     }
-    setPlayerID(data.playerId);
+    if (question.isoTimeLastQuestionStarted === data.question.isoTimeLastQuestionStarted) {
+      setTimeout(checkForNewQuestion, 50);
+      return;
+    }
+    // New question baby!
+    const newAnswers = [];
+    for (const answer of data.question.answers) {
+      newAnswers.push(answer.content)
+    }
+    setAnswers(newAnswers);
+    setQuestion(data.question);
+    setAnswersChecked([]);
+    setDisabled([]);
+    setWrongs([]);
+    setCount(data.question.timeLimit);
+  }
+
+  // When countdown === 0, get and show answers
+  const showAnswers = async () => {
+    const data = await apiCall(`play/${playerID}/answer`, 'GET');
+    if (data.error === 'Question time has not been completed') {
+      setCount(0);
+    }
+    const newDisabled = new Array(answers.length).fill(true);
+    const newCorrects = new Array(answers.length).fill(false);
+    for (const id of data.answerIds) {
+      // Green shape for correct answers
+      newCorrects[id] = true;
+    }
+    // Set player selected answers as wrong
+    setWrongs(answersChecked);
+    // Set correct answers as right, will override wrongs
+    setAnswersChecked(newCorrects);
+    // Disable answers
+    setDisabled(newDisabled);
+  }
+
+  // Handles player clicking an AnswerBox
+  const handleAnswerClick = async (index) => {
+    if (index < answers.length) {
+      let newChecked;
+      if (question.questionType === 'singleChoice') {
+        newChecked = new Array(answers.length).fill(false);
+      } else {
+        newChecked = [...answersChecked];
+      }
+      newChecked[index] = !newChecked[index];
+      // For multiChoice, don't unselect the last one
+      if (newChecked.every(elem => elem === false)) {
+        newChecked = [...answersChecked];
+      }
+      setAnswersChecked(newChecked);
+      const answerIds = newChecked.reduce((total, item, index) => {
+        if (item) {
+          total.push(index);
+        }
+        return total;
+      }, []);
+      const response = await apiCall(`play/${playerID}/answer`, 'PUT', { answerIds });
+      if (response.error) {
+        setPlayAlert('Error submitting answer to server: ' + response.error);
+      }
+    } else {
+      setPlayAlert(`You somehow clicked on an answer index ${index} when there are only ${answers.length} answers.`);
+    }
   }
 
   const handleNameState = (event) => {
@@ -60,16 +171,58 @@ function Play () {
     setSessionID(event.target.value);
   }
 
+  const handleSessionJoin = async () => {
+    const data = await apiCall(`play/join/${sessionID}`, 'POST', { name });
+    if (data.error) {
+      setPlayAlert('Error joining Session: ' + data.error);
+      return;
+    }
+    setPlayerID(data.playerId);
+  }
+
   return (
     <>
       <BackButton />
       { playerID
-        ? (<>
-          <div>
-            We are in!
-          </div>
-        </>)
+        ? (started && question)
+            ? results
+              ? (<>
+                { /* Results Screen */ }
+                <div>
+                  {results}
+                </div>
+                </>)
+              : (<>
+                { /* Question Screen */ }
+                <div>
+                  {question.question}
+                </div>
+                <MediaDisplay
+                  mediaType={question.mediaAttachmentType}
+                  media={question.mediaAttachment}
+                />
+                <div>
+                  Seconds left: {count >= 0 ? count : 0}
+                </div>
+                <div>
+                  <AnswerBoxes
+                    height="500px"
+                    answers={answers}
+                    corrects={answersChecked}
+                    wrongs={wrongs}
+                    disabled={disabled}
+                    handleClick={handleAnswerClick}
+                  />
+                </div>
+              </>)
+            : (<>
+              { /* Lobby Screen */ }
+              <div>
+                We are in!
+              </div>
+            </>)
         : (<>
+          { /* Join Session Screen */ }
           <div>
             <TextField
               fullWidth
@@ -95,7 +248,7 @@ function Play () {
             />
           </div>
           <div>
-            <Button onClick={handleClick} >Play!</Button>
+            <Button onClick={handleSessionJoin} >Play!</Button>
           </div>
         </>)
 

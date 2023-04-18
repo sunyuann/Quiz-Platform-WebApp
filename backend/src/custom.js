@@ -6,7 +6,7 @@
 // The object returned from GET /play/:playerid/question
 export const quizQuestionPublicReturn = question => {
   console.log('quizQuestionPublicReturn: ', question);
-  const stripped = {...question};
+  const stripped = JSON.parse(JSON.stringify(question))
   for (const answer of stripped.answers) {
     delete answer.isCorrect;
   }
@@ -21,11 +21,12 @@ export const quizQuestionPublicReturn = question => {
 export const quizQuestionGetCorrectAnswers = question => {
   console.log('quizQuestionGetCorrectAnswers: ', question);
   // We assume isCorrect adheres to single/multi already
-  const corrects = question.reduce((total, item, index) => {
+  const corrects = question.answers.reduce((total, item, index) => {
     if (item.isCorrect) {
       total.push(index);
     }
-  });
+    return total;
+  }, []);
   console.log('quizQuestionGetCorrectAnswers corrects ', corrects);
   return corrects;
 };
