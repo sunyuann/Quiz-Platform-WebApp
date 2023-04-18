@@ -53,6 +53,11 @@ function Dashboard () {
     await fetchAllQuizzes();
   }
 
+  // Handle updated Quiz from JSON
+  const handleJson = () => {
+    fetchAllQuizzes();
+  }
+
   // Handle Quiz Control panel button (and QuizStopPopupYes button)
   const handleQuizControl = (quizID, sessionID) => {
     navigate(`/quiz/control/${quizID}/${sessionID}`);
@@ -182,6 +187,7 @@ function Dashboard () {
               handleStart={handleQuizStart}
               handleEdit={handleQuizEdit}
               handleDelete={handleQuizDelete}
+              handleJson={handleJson}
               handleStop={handleQuizStop}
               handleControl={handleQuizControl}
             />

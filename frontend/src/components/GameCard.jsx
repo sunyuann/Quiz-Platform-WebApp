@@ -1,16 +1,65 @@
 import React from 'react';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
+import { apiCall } from '../helpers';
 
-function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, handleControl }) {
+function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, handleStop, handleControl }) {
+  const [jsonAlert, setJsonAlert] = React.useState(null);
   let quizTime = 0;
   for (const question of quiz.questions) {
     quizTime += Number(question.timeLimit);
   }
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result);
+      const pruned = { name: data.name, questions: data.questions, thumbnail: data.thumbnail }
+      if (validateData(pruned)) {
+        const response = apiCall(`admin/quiz/${quiz.id}`, 'PUT', pruned);
+        if (response.error) {
+          setJsonAlert({ severity: 'error', text: 'Error updating Quiz' });
+        } else {
+          handleJson();
+          setJsonAlert({ severity: 'success', text: 'Quiz was updated!' });
+        }
+      } else {
+        setJsonAlert({ severity: 'error', text: 'JSON was not valid' });
+      }
+    };
+    event.target.value = null;
+  };
+
+  const validateData = (data) => {
+    if (typeof data.name !== 'string') {
+      return false;
+    }
+    if (!data.thumbnail && !data.thumbnail.includes('data:image')) {
+      return false;
+    }
+    for (const question of data.questions) {
+      if (!['singleChoice', 'multipleChoice'].includes(question.questionType)) return false;
+      if (typeof question.timeLimit !== 'number' || typeof question.points !== 'number') return false;
+      if (typeof question.question !== 'string') return false;
+      if (typeof question.mediaAttachmentType === 'string' || typeof question.mediaAttachment === 'string') return false;
+      if (question.mediaAttachmentType === 'none' && question.mediaAttachment !== 'none') return false;
+      if (question.mediaAttachmentType === 'url' && !question.mediaAttachment.includes('youtube')) return false;
+      if (question.mediaAttachmentType === 'image' && !question.mediaAttachment.includes('data:image')) return false;
+      if (!question.answers || question.answers.length < 2 || question.answers.length > 6) return false;
+      for (const answer of question.answers) {
+        if (typeof answer.content !== 'string' || typeof answer.isCorrect !== 'boolean') return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <>
       <Card sx={{ maxWidth: '500px', margin: '5px 5px 5px 0px' }}>
@@ -56,11 +105,30 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleStop, ha
             : (<>
                 <Button variant="contained" onClick={() => { handleStart(quiz.id) }}>Start</Button>
                 <Button variant="contained" onClick={() => { handleEdit(quiz.id) }}>Edit</Button>
+                &nbsp;
+                <Button
+                  variant="contained"
+                  component="label"
+                >
+                  Import JSON
+                  <input
+                    hidden
+                    accept=".json"
+                    type="file"
+                    placeholder='Upload JSON'
+                    onChange={(event) => handleFileChange(event)}
+                  />
+                </Button>
                 <Button variant="contained" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
               </>)
           }
         </CardActions>
       </Card>
+      { jsonAlert && (
+            <Alert severity={jsonAlert.severity} onClose={() => setJsonAlert(null)}>
+              {jsonAlert.text}
+            </Alert>
+      )}
     </>
   )
 }
