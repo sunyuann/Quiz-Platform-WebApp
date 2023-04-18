@@ -22,7 +22,8 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, ha
     reader.onload = (e) => {
       const data = JSON.parse(e.target.result);
       const pruned = { name: data.name, questions: data.questions, thumbnail: data.thumbnail }
-      if (validateData(pruned)) {
+      const bad = validateData(pruned);
+      if (!bad) {
         const response = apiCall(`admin/quiz/${quiz.id}`, 'PUT', pruned);
         if (response.error) {
           setJsonAlert({ severity: 'error', text: 'Error updating Quiz' });
@@ -31,33 +32,59 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, ha
           setJsonAlert({ severity: 'success', text: 'Quiz was updated!' });
         }
       } else {
-        setJsonAlert({ severity: 'error', text: 'JSON was not valid' });
+        setJsonAlert({ severity: 'error', text: `JSON was not valid: ${bad}` });
       }
     };
     event.target.value = null;
   };
 
+  // Returns '' if good, otherwise reason why not good
   const validateData = (data) => {
     if (typeof data.name !== 'string') {
-      return false;
+      return 'name was not a string';
     }
     if (!data.thumbnail && !data.thumbnail.includes('data:image')) {
-      return false;
+      return 'thumbnail is not a data:image';
     }
     for (const question of data.questions) {
-      if (!['singleChoice', 'multipleChoice'].includes(question.questionType)) return false;
-      if (typeof question.timeLimit !== 'number' || typeof question.points !== 'number') return false;
-      if (typeof question.question !== 'string') return false;
-      if (typeof question.mediaAttachmentType === 'string' || typeof question.mediaAttachment === 'string') return false;
-      if (question.mediaAttachmentType === 'none' && question.mediaAttachment !== 'none') return false;
-      if (question.mediaAttachmentType === 'url' && !question.mediaAttachment.includes('youtube')) return false;
-      if (question.mediaAttachmentType === 'image' && !question.mediaAttachment.includes('data:image')) return false;
+      if (!['singleChoice', 'multipleChoice'].includes(question.questionType)) {
+        return 'questionType is wrong';
+      }
+      if (typeof question.timeLimit !== 'number' || typeof question.points !== 'number') {
+        return 'time limit or points is not a number';
+      }
+      if (typeof question.question !== 'string') {
+        return 'question is not a string';
+      }
+      if (typeof question.mediaAttachmentType === 'string' && typeof question.mediaAttachment !== 'string') {
+        return 'mediaAttachment was not a string';
+      }
+      if (typeof question.mediaAttachmentType !== 'string' && typeof question.mediaAttachment === 'string') {
+        return 'mediaAttachmentType was not a string';
+      }
+      if (question.mediaAttachmentType === 'none' && question.mediaAttachment !== 'none') {
+        return 'mediaAttachmentType was "none", but mediaAttachement was not "none"';
+      }
+      if (question.mediaAttachmentType !== 'none' && question.mediaAttachment === 'none') {
+        return 'mediaAttachmentType was not "none", but mediaAttachement was "none"';
+      }
+      if (question.mediaAttachmentType === 'url' && !question.mediaAttachment.includes('youtube')) {
+        return 'mediaAttachmentType was "url", but mediaAttachment was not a youtube video';
+      }
+      if (question.mediaAttachmentType === 'image' && !question.mediaAttachment.includes('data:image')) {
+        return 'mediaAttachmentType was "image", but mediaAttachment was not a data:image';
+      }
       if (!question.answers || question.answers.length < 2 || question.answers.length > 6) return false;
       for (const answer of question.answers) {
-        if (typeof answer.content !== 'string' || typeof answer.isCorrect !== 'boolean') return false;
+        if (typeof answer.content !== 'string') {
+          return 'answer.content was not a string';
+        }
+        if (typeof answer.isCorrect !== 'boolean') {
+          return 'answer.isCorrect was not a boolean';
+        }
       }
     }
-    return true;
+    return '';
   };
 
   return (
