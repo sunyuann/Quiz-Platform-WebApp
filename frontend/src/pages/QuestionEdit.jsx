@@ -94,12 +94,12 @@ function QuestionEdit () {
 
   // Handle time limit state
   const handleTimeLimitState = (event) => {
-    setTimeLimit(event.target.value);
+    setTimeLimit(Number(event.target.value));
   }
 
   // Handle points state
   const handlePointsState = (event) => {
-    setPoints(event.target.value);
+    setPoints(Number(event.target.value));
   }
 
   // Handle media attachment state for images

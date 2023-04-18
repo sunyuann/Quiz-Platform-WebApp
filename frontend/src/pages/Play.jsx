@@ -6,6 +6,7 @@ import BackButton from '../components/BackButton'
 import MediaDisplay from '../components/MediaDisplay';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import TableTwoCol from '../components/TableTwoCol';
 import TextField from '@mui/material/TextField';
 
 function Play () {
@@ -88,12 +89,15 @@ function Play () {
     if (data.error === 'Session ID is not an active session') {
       // End of quiz reached
       const dataEnd = await apiCall(`play/${playerID}/results`, 'GET');
-      const text = []
+      const tableData = []
       for (const idx in dataEnd) {
         const result = dataEnd[idx];
-        text.push(<div key={idx}>Question { Number(idx) + 1 }: { result.correct ? 'correct' : 'incorrect' }</div>);
+        tableData.push({
+          col1: `Question ${Number(idx) + 1}:`,
+          col2: result.correct ? 'correct' : 'incorrect'
+        })
       }
-      setResults(text);
+      setResults(tableData);
       return;
     }
     if (question.isoTimeLastQuestionStarted === data.question.isoTimeLastQuestionStarted) {
@@ -189,7 +193,11 @@ function Play () {
               ? (<>
                 { /* Results Screen */ }
                 <div>
-                  {results}
+                  <TableTwoCol
+                    col1Head='Question'
+                    col2Head='Answer is'
+                    data={results}
+                  />
                 </div>
                 </>)
               : (<>
