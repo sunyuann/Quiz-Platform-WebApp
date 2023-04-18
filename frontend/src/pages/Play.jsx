@@ -9,6 +9,7 @@ import Button from '@mui/material/Button';
 import TableTwoCol from '../components/TableTwoCol';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
+import Typography from '@mui/material/Typography';
 
 function Play () {
   const params = useParams();
@@ -223,12 +224,20 @@ function Play () {
                     handleClick={handleAnswerClick}
                   />
                 </div>
+                <Typography variant="body1" sx={{ marginTop: '40px' }}>
+                  NOTE: The scoring system is the product of the time taken to complete a question and the number of points a question is worth.
+                  The faster you get the answer, the higher your marks are. But remember to make sure to get the correct answer, or you won&apos;t get any points!
+                </Typography>
               </>)
             : (<>
               { /* Lobby Screen */ }
-              <div>
-                We are in!
-              </div>
+              <Typography variant="h6">
+                We are in! Please wait for the admin to start the quiz.
+              </Typography>
+              <Typography variant="body1" sx={{ marginTop: '5px' }}>
+                NOTE: The scoring system is the product of speed taken to complete a question and the number of points a question is worth. (i.e. Time remaining multiplied by Question Points)
+                The faster you get the answer, the higher your marks are. But remember to make sure to get the correct answer, or you won&apos;t get any points!
+              </Typography>
             </>)
         : (<>
           { /* Join Session Screen */ }
