@@ -26,7 +26,7 @@ function NavBar () {
     <nav>
       { getters.token
         ? (
-        <>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {/* Has token */}
           <Box sx={{ width: 500 }}>
             <BottomNavigation
@@ -38,10 +38,10 @@ function NavBar () {
             >
               <BottomNavigationAction label="Dashboard" component={Link} to='/dashboard'/>
               <BottomNavigationAction label="Join a game!" component={Link} to='/play'/>
-              <Button onClick={logout} variant="contained">Logout</Button>
             </BottomNavigation>
           </Box>
-        </>
+          <Button onClick={logout} variant="contained">Logout</Button>
+        </Box>
           )
         : (
         <>
@@ -54,8 +54,8 @@ function NavBar () {
                 setNavBarLoggedInState(newState);
               }}
             >
-              <BottomNavigationAction label="Sign Up" component={Link} to='/register'/>
               <BottomNavigationAction label="Sign In" component={Link} to='/login'/>
+              <BottomNavigationAction label="Sign Up" component={Link} to='/register'/>
               <BottomNavigationAction label="Join a game" component={Link} to='/play'/>
             </BottomNavigation>
           </Box>
