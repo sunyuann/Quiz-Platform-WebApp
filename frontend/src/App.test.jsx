@@ -6,6 +6,7 @@ import { createMemoryHistory } from 'history';
 import AnswerBox from './components/AnswerBox';
 import AnswerBoxes from './components/AnswerBoxes';
 import BackButton from './components/BackButton';
+import GameCard from './components/GameCard';
 
 describe('Test AnswerBox component', () => {
   it('AnswerBox exists', () => {
@@ -76,5 +77,92 @@ describe('Test BackButton component', () => {
     const backButton = screen.getByRole('button', { name: /back/i });
     userEvent.click(backButton);
     expect(history.location.pathname).toBe('/page1');
+  });
+});
+
+describe('Test GameCard component', () => {
+  it('GameCard shows Start, Edit, Delete buttons when inactive', () => {
+    const quiz = {
+      active: false,
+      questions: [],
+      name: 'ello dere',
+      thumbnail: 'why',
+    }
+    render(<GameCard quiz={quiz} />);
+    expect(screen.getAllByRole('button').length).toBe(3);
+    expect(screen.getByText(/start/i)).toBeInTheDocument();
+    expect(screen.getByText(/edit/i)).toBeInTheDocument();
+    expect(screen.getByText(/delete/i)).toBeInTheDocument();
+  });
+  it('GameCard shows Stop, Control Panel buttons when active', () => {
+    const quiz = {
+      active: true,
+      questions: [],
+      name: 'ello dere',
+      thumbnail: 'why',
+    }
+    render(<GameCard quiz={quiz} />);
+    expect(screen.getAllByRole('button').length).toBe(2);
+    expect(screen.getByText(/Stop/i)).toBeInTheDocument();
+    expect(screen.getByText(/Control Panel/i)).toBeInTheDocument();
+  });
+  it('GameCard Start, Edit, Delete buttons correct onClick', () => {
+    const quiz = {
+      active: false,
+      questions: [],
+      name: 'ello dere',
+      thumbnail: 'why',
+    }
+    const handleStart = jest.fn();
+    const handleEdit = jest.fn();
+    const handleDelete = jest.fn();
+    const handleStop = jest.fn();
+    const handleControl = jest.fn();
+    render(
+    <GameCard
+      quiz={quiz}
+      handleStart={handleStart}
+      handleEdit={handleEdit}
+      handleDelete={handleDelete}
+      handleStop={handleStop}
+      handleControl={handleControl}
+    />);
+    userEvent.click(screen.getByText(/start/i));
+    expect(handleStart).toHaveBeenCalledTimes(1);
+    userEvent.click(screen.getByText(/edit/i));
+    expect(handleEdit).toHaveBeenCalledTimes(1);
+    userEvent.click(screen.getByText(/delete/i));
+    expect(handleDelete).toHaveBeenCalledTimes(1);
+    expect(handleStop).toHaveBeenCalledTimes(0);
+    expect(handleControl).toHaveBeenCalledTimes(0);
+  });
+  it('GameCard Stop, Control Panel buttons correct onClick', () => {
+    const quiz = {
+      active: true,
+      questions: [],
+      name: 'ello dere',
+      thumbnail: 'why',
+    }
+    const handleStart = jest.fn();
+    const handleEdit = jest.fn();
+    const handleDelete = jest.fn();
+    const handleStop = jest.fn();
+    const handleControl = jest.fn();
+    render(
+    <GameCard
+      quiz={quiz}
+      handleStart={handleStart}
+      handleEdit={handleEdit}
+      handleDelete={handleDelete}
+      handleStop={handleStop}
+      handleControl={handleControl}
+    />);
+    userEvent.click(screen.getByText(/stop/i));
+    expect(handleStop).toHaveBeenCalledTimes(1);
+    userEvent.click(screen.getByText(/control panel/i));
+    expect(handleControl).toHaveBeenCalledTimes(1);
+    expect(handleStart).toHaveBeenCalledTimes(0);
+    expect(handleEdit).toHaveBeenCalledTimes(0);
+    expect(handleDelete).toHaveBeenCalledTimes(0);
   });
 });
