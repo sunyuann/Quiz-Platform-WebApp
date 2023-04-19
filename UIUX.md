@@ -7,3 +7,4 @@
 * Answer boxes are similar to Kahoot's.
 * Trying to go to Login or Register page while already logged in will redirect to the Dashboard.
 * Quiz Import gives reason for failure.
+* Logout button tries to be more to the right of Dashboard and Join a game! to prevent accidental clicks.
