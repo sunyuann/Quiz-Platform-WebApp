@@ -107,7 +107,6 @@ function QuizControl () {
   // For a player from results, get their total points using status.questions (formula = question points * time remaining (in seconds))
   const getPlayerPoints = (player, questions) => {
     return player.answers.reduce((total, answer, idx) => {
-      console.log(questions)
       const timeDiff =
         new Date(answer.answeredAt) - new Date(answer.questionStartedAt);
       const timeRemaining =
