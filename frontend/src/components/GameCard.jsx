@@ -14,7 +14,7 @@ import Typography from '@mui/material/Typography';
 
 function GameCard ({
   quiz, handleStart, handleEdit, handleDelete, handleJson,
-  handleStop, handleControl, handleOldSession
+  handleStop, handleControl
 }) {
   const [expanded, setExpanded] = React.useState(false);
   const [jsonAlert, setJsonAlert] = React.useState(null);
