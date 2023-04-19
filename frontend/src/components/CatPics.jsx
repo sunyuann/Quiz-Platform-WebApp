@@ -1,5 +1,6 @@
 import React from 'react';
 import Alert from '@mui/material/Alert';
+import { Box } from '@mui/material';
 
 function CatPics () {
   const [catAlert, setCatAlert] = React.useState('');
@@ -31,7 +32,7 @@ function CatPics () {
     <>
       <div>
         { catImageUrl
-          ? (<img src={catImageUrl} alt="Random cat picture" style={{ width: '100%', height: 'auto' }} />)
+          ? (<Box component='img' src={catImageUrl} alt="Random cat picture" sx={{ width: '100%' }} />)
           : (<p>Loading Cat...</p>)
         }
       </div>

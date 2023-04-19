@@ -8,6 +8,7 @@ import GamePopup from '../components/GamePopup';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
 import TextField from '@mui/material/TextField';
+import { Box } from '@mui/material';
 
 function Dashboard () {
   const [newGameShow, setNewGameShow] = React.useState(false);
@@ -155,7 +156,7 @@ function Dashboard () {
             <Typography sx={{ marginLeft: '5px', marginTop: '3px' }} variant="h6" gutterBottom>
                 Create new game here
               </Typography>
-            <div style={{ marginLeft: '10px', marginTop: '5px' }}>
+            <Box marginLeft='10px' marginTop='5px'>
               <InputLabel>Game Name</InputLabel>
               <TextField
                 value={newQuizName}
@@ -166,7 +167,7 @@ function Dashboard () {
               <div>
                 <Button sx={{ paddingTop: '10px', paddingBottom: '10px', marginBottom: '20px' }} variant="contained" size='large' onClick={createNewGame}>Create new game</Button>
               </div>
-            </div>
+            </Box>
             <hr />
           </>
         )}
@@ -180,6 +181,7 @@ function Dashboard () {
       <Typography variant="h5" gutterBottom>
         List of games
       </Typography>
+        <Box display='flex' flexWrap='wrap' gap='10px'>
         {quizzes.map(quiz => (
           <div key={quiz.id}>
             <GameCard
@@ -193,6 +195,7 @@ function Dashboard () {
             />
           </div>
         ))}
+        </Box>
         { quizError && (
           <Alert severity="error" onClose={() => setQuizError('')}>
             {quizError}
