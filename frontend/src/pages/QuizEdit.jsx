@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import InputLabel from '@mui/material/InputLabel';
+import { Box } from '@mui/material';
 
 function QuizEdit () {
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ function QuizEdit () {
             Quiz Edit Form
           </Typography>
           <br />
-          <div style={{ paddingBottom: '15px' }}>
+          <Box paddingBottom='15px'>
             <InputLabel>Name</InputLabel>
             <TextField
               InputLabelProps={{
@@ -139,12 +140,12 @@ function QuizEdit () {
             <Button
               variant="contained"
               size="large"
-              style={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
+              sx={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
               onClick={handleUpdateName}
             >
               Update Name
             </Button>
-          </div>
+          </Box>
           { nameAlert && (
             <Alert severity={nameAlert.severity} onClose={() => setNameAlert(null)}>
               {nameAlert.text}
@@ -152,15 +153,20 @@ function QuizEdit () {
           )}
           <div>
             <InputLabel>Thumbnail</InputLabel>
-            <img src={thumb} style={{ maxWidth: '55ch', maxHeight: '55ch', height: 'auto' }} alt={'Thumbnail of quiz ' + quiz.name} />
+            <Box
+              component='img'
+              src={thumb}
+              alt={'Thumbnail of quiz ' + quiz.name}
+              sx={{ maxWidth: '55ch', maxHeight: '55ch', height: 'auto' }}
+            />
           </div>
           <div>
-            <div style={{ marginBottom: '15px', marginTop: '10px' }}>
+            <Box sx={{ marginBottom: '15px', marginTop: '10px' }}>
               <Button
                 variant="contained"
                 component="label"
                 size="large"
-                style={{ marginRight: '3px', width: '26ch' }}
+                sx={{ marginRight: '3px', width: '26ch' }}
               >
                 Upload Image
                 <input
@@ -174,31 +180,40 @@ function QuizEdit () {
               <Button
                 variant="contained"
                 size="large"
-                style={{ marginLeft: '3px', width: '26ch' }}
+                sx={{ marginLeft: '3px', width: '26ch' }}
                 onClick={handleUpdateThumb}
               >
                 Update Thumbnail
               </Button>
-            </div>
+            </Box>
             { thumbAlert && (
             <Alert severity={thumbAlert.severity} onClose={() => setNameAlert(null)}>
               {thumbAlert.text}
             </Alert>
             )}
           </div>
-          <div style={{ marginTop: '15px' }}>
+          <Box sx={{ marginTop: '15px' }}>
             <Typography variant="h5">
               Questions
             </Typography>
-            <div style={{ marginTop: '5px', marginLeft: '2px' }}>
+            <Box display='flex' flexDirection='column' gap='2px' sx={{ marginTop: '5px', marginLeft: '2px' }}>
               {quiz.questions.map((question, index) => (
                 <div key={index + 1}>
-                  <QuestionCard index={index} handleEdit={handleQuestionEdit} handleDelete={handleQuestionDelete} />
+                  <QuestionCard
+                    index={index}
+                    handleEdit={handleQuestionEdit}
+                    handleDelete={handleQuestionDelete}
+                  />
                 </div>
               ))}
-              <Button variant="contained" size="large" style={{ marginTop: '6px', marginBottom: '15px' }} onClick={handleAddQuestion}>Add new question</Button>
-            </div>
-          </div>
+              <Button
+                variant="contained"
+                size="large"
+                onClick={handleAddQuestion}
+                sx={{ marginTop: '6px', marginBottom: '15px' }}
+              >Add new question</Button>
+            </Box>
+          </Box>
         </>
       )}
       { quizError && (

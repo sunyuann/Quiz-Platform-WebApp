@@ -281,7 +281,7 @@ function QuestionEdit () {
         </div>
       </Box>
       {mediaAttachmentDisplay}
-      <div style={{ marginBottom: '15px', marginTop: '10px' }}>
+      <Box marginBottom='15px' marginTop='10px'>
         <Button
           variant="contained"
           component="label"
@@ -296,7 +296,7 @@ function QuestionEdit () {
             onChange={handleMediaAttachmentStateImage}
           />
         </Button>
-      </div>
+      </Box>
       <div>
         <TextField
           label='Enter youtube URL here'
@@ -310,7 +310,7 @@ function QuestionEdit () {
         <Button
           variant="contained"
           size="large"
-          style={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
+          sx={{ paddingTop: '14.5px', paddingBottom: '14.5px', marginLeft: '3px' }}
           onClick={uploadMediaAttachmentStateURL}
         >
           Upload URL
@@ -319,7 +319,7 @@ function QuestionEdit () {
       <Button
         variant="contained"
         size="large"
-        style={{ marginTop: '10px' }}
+        sx={{ marginTop: '10px' }}
         onClick={deleteMediaAttachmentState}
       >
         Remove Image or Video
