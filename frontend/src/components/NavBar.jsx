@@ -26,7 +26,7 @@ function NavBar () {
     <nav>
       { getters.token
         ? (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box display='flex' alignItems='center' justifyContent='space-around'>
           {/* Has token */}
           <Box sx={{ width: 500 }}>
             <BottomNavigation

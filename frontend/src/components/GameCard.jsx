@@ -1,20 +1,35 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { apiCall } from '../helpers';
+import ExpandMore from './ExpandMore';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import Collapse from '@mui/material/Collapse';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
-import { apiCall } from '../helpers';
 
-function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, handleStop, handleControl }) {
+function GameCard ({
+  quiz, handleStart, handleEdit, handleDelete, handleJson,
+  handleStop, handleControl
+}) {
+  const [expanded, setExpanded] = React.useState(false);
   const [jsonAlert, setJsonAlert] = React.useState(null);
+
   let quizTime = 0;
   for (const question of quiz.questions) {
     quizTime += Number(question.timeLimit);
   }
 
+  // Expand to show old session links
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
+
+  // Handle JSON import
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -137,7 +152,7 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, ha
                   variant="contained"
                   component="label"
                 >
-                  Import JSON
+                  Import
                   <input
                     hidden
                     accept=".json"
@@ -149,7 +164,32 @@ function GameCard ({ quiz, handleStart, handleEdit, handleDelete, handleJson, ha
                 <Button variant="contained" onClick={() => { handleDelete(quiz.id) }}>Delete</Button>
               </>)
           }
+          <ExpandMore
+                  expand={expanded}
+                  onClick={handleExpandClick}
+                  aria-expanded={expanded}
+                  aria-label="show more"
+                >
+                  <ExpandMoreIcon />
+          </ExpandMore>
         </CardActions>
+        <Collapse in={expanded} timeout="auto" unmountOnExit>
+          <CardContent>
+            Old sessions:
+            { (!quiz.oldSessions || quiz.oldSessions.length === 0)
+              ? ' none.'
+              : quiz.oldSessions.map((sess, index) => (
+              <div key={index}>
+              <Link
+                to={`/quiz/control/${quiz.id}/${sess}`}
+              >
+                <span>{sess}</span><span>, </span>
+              </Link>
+              </div>
+              ))
+            }
+          </CardContent>
+        </Collapse>
       </Card>
       { jsonAlert && (
             <Alert severity={jsonAlert.severity} onClose={() => setJsonAlert(null)}>

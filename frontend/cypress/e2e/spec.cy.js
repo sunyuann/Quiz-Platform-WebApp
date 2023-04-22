@@ -30,7 +30,7 @@ describe('Admin Happy Path', () => {
     cy.contains('button', 'Control Panel').click();
     cy.contains('button', 'Start Quiz').click();
     // Check results
-    cy.contains('h2', 'Top 5 Players').should('exist');
+    cy.contains('Top 5 Players').should('exist');
     // Log out
     cy.contains('button', 'Logout').click();
     cy.contains('button', 'Log In').should('exist');
@@ -69,37 +69,42 @@ describe('Admin/User Path', () => {
     cy.contains('button', 'Edit').click();
     cy.contains('button', 'Add new answer').should('exist');
     // Add answer
-    cy.get('input[value=""][placeholder="Enter an answer here"]').should('not.exist');
-    cy.contains('button', 'Add new answer').click();
-    cy.get('input[value=""][placeholder="Enter an answer here"]').should('exist');
-    // Save question
-    cy.contains('button', 'Save changes').click();
-    cy.contains('div', 'Changes saved').should('exist');
-    // Test BackButton
-    cy.contains('button', 'Back').click();
-    cy.contains('button', 'Add new question').should('exist');
-    cy.contains('button', 'Back').click();
-    cy.contains('Dashboard').should('exist');
-    // Start game
-    cy.contains('button', 'Start').click();
-    cy.contains('button', 'Close').click();
-    // Stop game
-    cy.contains('button', 'Stop').click();
-    // Test other way to results
-    cy.contains('button', 'Yes').click();
-    cy.contains('h2', 'Top 5 Players').should('exist');
-    // Test NavBar Dashboard link
-    cy.contains('a', 'Dashboard').click();
-    // Start game
-    cy.contains('button', 'Start').click();
-    // Join game
-    cy.get('p[id="game-start-popup-description"]').then((p) => {
-      const sessionID = p.text();
-      cy.visit(`http://localhost:3000/play/${sessionID}`);
-      cy.get(`input[value=${sessionID}]`).should('exist');
-      cy.get('input[placeholder="Enter your name here"]').focus().type('bob');
-      cy.contains('button', 'Play!').click();
-      cy.contains('We are in!').should('exist');
+    cy.get('input[placeholder="Enter an answer here"]').then((before) => {
+      const beforeLength = before.length;
+      cy.contains('button', 'Add new answer').click();
+      cy.get('input[placeholder="Enter an answer here"]').then((after) => {
+        const afterLength = after.length;
+        expect(afterLength - beforeLength).to.equal(1);
+      });
+      // Save question
+      cy.contains('button', 'Save changes').click();
+      cy.contains('div', 'Changes saved').should('exist');
+      // Test BackButton
+      cy.contains('button', 'Back').click();
+      cy.contains('button', 'Add new question').should('exist');
+      cy.contains('button', 'Back').click();
+      cy.contains('Dashboard').should('exist');
+      // Start game
+      cy.contains('button', 'Start').click();
+      cy.contains('button', 'Close').click();
+      // Stop game
+      cy.contains('button', 'Stop').click();
+      // Test other way to results
+      cy.contains('button', 'Yes').click();
+      cy.contains('Top 5 Players').should('exist');
+      // Test NavBar Dashboard link
+      cy.contains('a', 'Dashboard').click();
+      // Start game
+      cy.contains('button', 'Start').click();
+      // Join game
+      cy.get('p[id="game-start-popup-description"]').then((p) => {
+        const sessionID = p.text();
+        cy.visit(`http://localhost:3000/play/${sessionID}`);
+        cy.get(`input[value=${sessionID}]`).should('exist');
+        cy.get('input[placeholder="Enter your name here"]').focus().type('bob');
+        cy.contains('button', 'Play!').click();
+        cy.contains('We are in!').should('exist');
+      });
     });
   });
 })

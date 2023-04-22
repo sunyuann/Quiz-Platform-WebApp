@@ -29,20 +29,19 @@ function Play () {
 
   // Poll to see if Quiz has started
   React.useEffect(() => {
-    if (playerID && !started) {
-      const intervalId = setInterval(async () => {
+    const intervalId = setInterval(async () => {
+      if (playerID && !started) {
         const data = await apiCall(`play/${playerID}/status`, 'GET');
         if (data.error) {
           setPlayAlert('Error joining Session: ' + data.error);
           return;
         }
         setStarted(data.started);
-      }, 50);
-
-      return () => {
-        clearInterval(intervalId);
-      };
-    }
+      }
+    }, 50);
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [playerID, started]);
 
   // Get Question info when Quiz has started
@@ -68,8 +67,8 @@ function Play () {
 
   // Handles countdown
   React.useEffect(() => {
-    if (started) {
-      const updateCount = () => {
+    const updateCount = () => {
+      if (started) {
         const newCount = count - 1;
         if (newCount === 0) {
           setDisabled(new Array(answers.length).fill(true));
@@ -82,7 +81,10 @@ function Play () {
           setCount(() => { return newCount; })
         }
       }
-      setTimeout(updateCount, 1000);
+    }
+    const intervalId = setInterval(updateCount, 1000);
+    return () => {
+      clearInterval(intervalId);
     }
   }, [count]);
 
